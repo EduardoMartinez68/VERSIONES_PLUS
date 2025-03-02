@@ -1,1 +1,681 @@
-const _0x3d7dc0=_0x4283;function _0xd009(){const _0x2ef8af=['express','darwin','code','Fecha\x20de\x20instalación\x20guardada:','express-handlebars','Fecha\x20de\x20instalación\x20existente:','partials','./router/links/boutique','./lib/system','Socket\x20','main','La\x20conexión\x20a\x20la\x20base\x20de\x20datos\x20fue\x20cerrada.','\x20desconectado,\x20pero\x20no\x20estaba\x20asociado\x20a\x20ninguna\x20empresa.','pack_branch','./router/links/CRM','Mensaje\x20enviado\x20con\x20éxito.\x20👌','IPv4','info','https://github.com/EduardoMartinez68/VERSIONES_PLUS','update-index','mysql','PROTOCOL_CONNECTION_LOST','urlencoded','express-session','init','messageStatus','--assume-unchanged','user','../src/public/img/uploads/','get','true','warning','initialize','sendNotification','multer','./lib/passport','flash','get_the_first_notification','some','error','/links','Token\x20inválido\x20o\x20ya\x20utilizado.\x20Por\x20favor,\x20verifique\x20e\x20intente\x20de\x20nuevo.','single','Su\x20Token\x20es\x20iunvalido.','❌\x20Error\x20verificando\x20actualizaciones:','\x27\x20no\x20existe\x20🤔','1554860uWsnCr','token-invalido','false','11429757oRfPzt','0.0.0.0','Token\x20Invalido','broadcast','quit','ER_CON_COUNT_ERROR','this_email_exist','util','reply','theUserIsConnect','./router','u995592926_bestpoint','./lib/editFrom','public/img/uploads','public','./router/links/desktop','address','express-recaptcha','./router/links/cashCut','desktop','originalname','60sVIvSQ','json','La\x20demo\x20aún\x20está\x20activa.','validar-token','installToken\x20eliminado','No\x20se\x20encontró\x20la\x20fecha\x20de\x20instalación','emit','Bobesponja48*','message','userId','\x27\x20no\x20existe.\x20🤔','canSend','connect-pg-simple','.hbs','token-valido','./router/links/app','maximize','registerUser','./lib/addFrom','static','send_new_message','FudSession','./keys','Conexión\x20a\x20la\x20base\x20de\x20datos\x20exitosa\x20MYSQL.','create_notification','extname','./router/links','query','./router/links/fudone','getTheFirstTenNotifications','739684RNeVpj','socketId','connectionRejected','18LjFHod','showMessageBoxSync','close','Error\x20al\x20verificar\x20el\x20token:','dev','path','networkInterfaces','set','socket.io','view\x20engine','./router/links/branch','pull','No\x20pudimos\x20enviar\x20el\x20mensaje\x20al\x20usuario\x20\x27','latest','diskStorage','electron','success','image','La\x20demo\x20ha\x20expirado.','ready','1143402XjNefy','🔄\x20Nueva\x20versión\x20encontrada,\x20actualizando...','3hAgmvt','log','El\x20usuario\x20\x27','length','config','ECONNREFUSED','Se\x20ha\x20descargado\x20una\x20nueva\x20versión.\x20Reinicia\x20la\x20aplicación\x20para\x20aplicar\x20los\x20cambios.','./router/authentication','http','companyId','relaunch','node-persist','connection','origin/main','¡Token\x20activado\x20correctamente!','views','1967002BSZdNp','disconnect','Mensaje\x20enviado\x20con\x20éxito','locals','session','Token\x20encontrado\x20y\x20activo.','1990928sJiFdu','Pool','Actualización','port','env','PORT','./router/links/ceo','getConnection','\x0a\x20\x20\x20\x20\x20\x20\x20\x20UPDATE\x20pagos\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20SET\x20active\x20=\x20false\x0a\x20\x20\x20\x20\x20\x20\x20\x20WHERE\x20token\x20=\x20?\x0a\x20\x20\x20\x20','./router/links/store','use','fetch','create_new_chat','get_max_employee_of_this_company','simple-git','createPool','✅\x20La\x20aplicación\x20ya\x20está\x20actualizada.','origin','newNotification','Ups,\x20parece\x20que\x20alcanzaste\x20tu\x20límite\x20de\x20dispositivos\x20conectados.\x20Por\x20favor,\x20actualiza\x20tu\x20membresía.','release','pack_company','data','internal','privateNotifications','El\x20token\x20no\x20está\x20activo\x20o\x20no\x20existe.','join','uuid','installToken','connect-flash','loadFile','24ncflzd','toISOString','HEAD','\x0a\x20\x20\x20\x20\x20\x20\x20\x20SELECT\x20*\x20FROM\x20pagos\x20\x0a\x20\x20\x20\x20\x20\x20\x20\x20WHERE\x20token\x20=\x20?\x0a\x20\x20\x20\x20','3224298HAlaTo','Este\x20email\x20\x27','company','installDate','filter','hash','193.203.166.165'];_0xd009=function(){return _0x2ef8af;};return _0xd009();}(function(_0x3cbe24,_0x153269){const _0x488752=_0x4283,_0x42d695=_0x3cbe24();while(!![]){try{const _0x32f22f=-parseInt(_0x488752(0x159))/0x1+parseInt(_0x488752(0x16b))/0x2+parseInt(_0x488752(0x15b))/0x3*(parseInt(_0x488752(0x171))/0x4)+parseInt(_0x488752(0x1c9))/0x5*(parseInt(_0x488752(0x145))/0x6)+parseInt(_0x488752(0x194))/0x7*(-parseInt(_0x488752(0x190))/0x8)+parseInt(_0x488752(0x1cc))/0x9+parseInt(_0x488752(0x1e1))/0xa*(-parseInt(_0x488752(0x142))/0xb);if(_0x32f22f===_0x153269)break;else _0x42d695['push'](_0x42d695['shift']());}catch(_0x5eb40e){_0x42d695['push'](_0x42d695['shift']());}}}(_0xd009,0xb86d6));const system=require(_0x3d7dc0(0x1a3)),thiIsADemo=!![],{app,BrowserWindow,dialog,ipcMain}=require(_0x3d7dc0(0x154)),express=require(_0x3d7dc0(0x19b)),morgan=require('morgan'),{engine}=require(_0x3d7dc0(0x19f)),multer=require(_0x3d7dc0(0x1bd)),flash=require(_0x3d7dc0(0x18e)),session=require(_0x3d7dc0(0x1b2)),passport=require('passport'),{database}=require(_0x3d7dc0(0x1f7)),{v4:uuid}=require(_0x3d7dc0(0x18c)),path=require(_0x3d7dc0(0x14a)),{RecaptchaV2}=require(_0x3d7dc0(0x1dd)),nodePersist=require(_0x3d7dc0(0x166));nodePersist[_0x3d7dc0(0x1b3)]({'dir':path[_0x3d7dc0(0x18b)](__dirname,_0x3d7dc0(0x187))});async function initialize_software(){const _0x14854f=_0x3d7dc0,_0xfded9e=await nodePersist[_0x14854f(0x1b8)](_0x14854f(0x18d));!_0xfded9e&&await nodePersist[_0x14854f(0x14c)](_0x14854f(0x18d),_0x14854f(0x1cb));}async function the_software_have_a_token(){const _0x1aec7f=_0x3d7dc0,_0x3d3b4d=await nodePersist[_0x1aec7f(0x1b8)]('installToken');if(!_0x3d3b4d)return![];return _0x3d3b4d==_0x1aec7f(0x1b9);}async function remove_install_token(){const _0x2c5f82=_0x3d7dc0;await nodePersist['removeItem']('installToken'),console['log'](_0x2c5f82(0x1e5));}async function initialize_token(){const _0x2e54ca=_0x3d7dc0,_0x548472=await nodePersist[_0x2e54ca(0x1b8)](_0x2e54ca(0x18d));await nodePersist[_0x2e54ca(0x14c)](_0x2e54ca(0x18d),_0x2e54ca(0x1b9));}async function initialize_demo(){const _0x4ddf5a=_0x3d7dc0,_0x44f657=await nodePersist[_0x4ddf5a(0x1b8)](_0x4ddf5a(0x197));if(!_0x44f657){const _0x30711d=new Date()[_0x4ddf5a(0x191)]();await nodePersist['set'](_0x4ddf5a(0x197),_0x30711d),console[_0x4ddf5a(0x15c)](_0x4ddf5a(0x19e),_0x30711d);}else console[_0x4ddf5a(0x15c)](_0x4ddf5a(0x1a0),_0x44f657);}async function is_demo_expired(){const _0x593fa3=_0x3d7dc0,_0x72075=await nodePersist['get'](_0x593fa3(0x197));if(!_0x72075)return console[_0x593fa3(0x15c)](_0x593fa3(0x1e6)),![];const _0x48cdd6=new Date(_0x72075),_0x203fd2=new Date(),_0x5447c7=_0x203fd2-_0x48cdd6,_0x3cb3e8=_0x5447c7/(0x3e8*0x3c*0x3c*0x18);return _0x3cb3e8>0xf?(console[_0x593fa3(0x15c)](_0x593fa3(0x157)),!![]):(console['log'](_0x593fa3(0x1e3)),![]);}const simpleGit=require(_0x3d7dc0(0x17f)),fs=require('fs'),repoPath=path[_0x3d7dc0(0x18b)](__dirname),git=simpleGit(repoPath),repoURL=_0x3d7dc0(0x1ad),remote=_0x3d7dc0(0x182);async function check_if_exist_updates(){const _0x22384f=_0x3d7dc0;try{await git[_0x22384f(0x17c)](remote),await git['raw']([_0x22384f(0x1ae),_0x22384f(0x1b5),_0x22384f(0x1b7)]);const _0x3e5bc6=await git[_0x22384f(0x15c)]([_0x22384f(0x168),'-1']),_0x333251=await git[_0x22384f(0x15c)]([_0x22384f(0x192),'-1']);_0x3e5bc6[_0x22384f(0x152)][_0x22384f(0x199)]!==_0x333251[_0x22384f(0x152)][_0x22384f(0x199)]?(console['log'](_0x22384f(0x15a)),await git[_0x22384f(0x150)](_0x22384f(0x182),_0x22384f(0x1a5),{'--rebase':null}),dialog[_0x22384f(0x146)]({'type':_0x22384f(0x1ac),'title':_0x22384f(0x173),'message':_0x22384f(0x161),'buttons':['Reiniciar\x20ahora']}),app[_0x22384f(0x165)](),app['quit']()):console[_0x22384f(0x15c)](_0x22384f(0x181));}catch(_0x638989){console[_0x22384f(0x1c2)](_0x22384f(0x1c7),_0x638989);}}const serverExpress=express();require(_0x3d7dc0(0x1be)),require(_0x3d7dc0(0x1d8)),serverExpress['set'](_0x3d7dc0(0x174),process[_0x3d7dc0(0x175)][_0x3d7dc0(0x176)]||0xfa0),serverExpress[_0x3d7dc0(0x14c)](_0x3d7dc0(0x16a),path[_0x3d7dc0(0x18b)](__dirname,_0x3d7dc0(0x16a))),serverExpress['engine'](_0x3d7dc0(0x1ee),engine({'defaultLayout':'main','layoutsDir':path['join'](serverExpress['get'](_0x3d7dc0(0x16a)),'layouts'),'partialsDir':path['join'](serverExpress[_0x3d7dc0(0x1b8)](_0x3d7dc0(0x16a)),_0x3d7dc0(0x1a1)),'extname':_0x3d7dc0(0x1ee),'helpers':require('./lib/handlebars')})),serverExpress[_0x3d7dc0(0x14c)](_0x3d7dc0(0x14e),_0x3d7dc0(0x1ee)),require('dotenv')[_0x3d7dc0(0x15f)]();const {APP_PG_USER,APP_PG_HOST,APP_PG_DATABASE,APP_PG_PASSWORD,APP_PG_PORT,TOKEN}=process[_0x3d7dc0(0x175)],pg=require('pg'),pgPool=new pg[(_0x3d7dc0(0x172))]({'user':APP_PG_USER,'host':APP_PG_HOST,'database':APP_PG_DATABASE,'password':APP_PG_PASSWORD,'port':APP_PG_PORT});serverExpress[_0x3d7dc0(0x17b)](session({'secret':_0x3d7dc0(0x1f6),'resave':![],'saveUninitialized':![],'store':new(require(_0x3d7dc0(0x1ed))(session))({'pool':pgPool,'tableName':'session'})})),serverExpress[_0x3d7dc0(0x17b)](flash()),serverExpress[_0x3d7dc0(0x17b)](morgan(_0x3d7dc0(0x149))),serverExpress['use'](express[_0x3d7dc0(0x1b1)]({'extended':![]})),serverExpress[_0x3d7dc0(0x17b)](express[_0x3d7dc0(0x1e2)]()),serverExpress[_0x3d7dc0(0x17b)](passport[_0x3d7dc0(0x1bb)]()),serverExpress[_0x3d7dc0(0x17b)](passport[_0x3d7dc0(0x16f)]());const storage=multer[_0x3d7dc0(0x153)]({'destination':path['join'](__dirname,_0x3d7dc0(0x1d9)),'filename':(_0x436c29,_0x412d17,_0x8218ed,_0xf67df2)=>{const _0x303a90=_0x3d7dc0;_0x8218ed(null,uuid()+path[_0x303a90(0x1fa)](_0x412d17[_0x303a90(0x1e0)]));}});serverExpress[_0x3d7dc0(0x17b)](multer({'storage':storage})[_0x3d7dc0(0x1c5)](_0x3d7dc0(0x156))),serverExpress['use']((_0x343557,_0x875e63,_0x235882)=>{const _0x5dcc69=_0x3d7dc0;serverExpress[_0x5dcc69(0x16e)][_0x5dcc69(0x155)]=_0x343557[_0x5dcc69(0x1bf)]('success'),serverExpress[_0x5dcc69(0x16e)]['message']=_0x343557[_0x5dcc69(0x1bf)](_0x5dcc69(0x1e9)),serverExpress[_0x5dcc69(0x16e)][_0x5dcc69(0x1b6)]=_0x343557[_0x5dcc69(0x1b6)],serverExpress[_0x5dcc69(0x16e)][_0x5dcc69(0x196)]=_0x343557[_0x5dcc69(0x196)],serverExpress[_0x5dcc69(0x16e)][_0x5dcc69(0x186)]=0x0,serverExpress[_0x5dcc69(0x16e)][_0x5dcc69(0x1a8)]=0x0,_0x235882();});const http=require(_0x3d7dc0(0x163)),server=http['createServer'](serverExpress),{Server}=require(_0x3d7dc0(0x14d)),io=new Server(server),users={},connectedEmployees={},companyLimitsCache={},chat=require('./services/chat.js');io['on'](_0x3d7dc0(0x167),async _0x2a6de4=>{const _0x183625=_0x3d7dc0;_0x2a6de4['on'](_0x183625(0x1f2),async(_0xe736fa,_0x40db41)=>{const _0x2d9fde=_0x183625,_0x44202a=connectedEmployees[_0x40db41]||[],_0x594138=_0x44202a[_0x2d9fde(0x1c1)](_0x592183=>_0x592183[_0x2d9fde(0x1ea)]===_0xe736fa);if(_0x594138){_0x2a6de4['emit'](_0x2d9fde(0x144),'Ups,\x20parece\x20que\x20ya\x20estás\x20conectado\x20en\x20otro\x20dispositivo.');return;}if(system!=_0x2d9fde(0x1df)){!companyLimitsCache[_0x40db41]&&(companyLimitsCache[_0x40db41]=await chat[_0x2d9fde(0x17e)](_0x40db41));const _0x3d3ce7=companyLimitsCache[_0x40db41];if(_0x44202a['length']>=_0x3d3ce7){_0x2a6de4[_0x2d9fde(0x1e7)](_0x2d9fde(0x144),_0x2d9fde(0x184));return;}}_0x2a6de4[_0x2d9fde(0x164)]=_0x40db41,_0x44202a['push']({'userId':_0xe736fa,'socketId':_0x2a6de4['id']}),connectedEmployees[_0x40db41]=_0x44202a;const _0x56c1f1=await chat[_0x2d9fde(0x1c0)](_0xe736fa,0xa);io['to'](_0xe736fa)[_0x2d9fde(0x1e7)]('privateNotifications',{'notifications':_0x56c1f1});});async function _0x5a0453(_0x59626e){const _0x26c3c3=_0x183625,_0x70c181=users[_0x59626e];let _0x1e4acb=_0x70c181;!_0x70c181&&(_0x1e4acb=await chat[_0x26c3c3(0x1d2)](toUserId));const _0x4c8bb2={'canSend':_0x1e4acb,'theUserIsConnect':_0x70c181};return _0x4c8bb2;}_0x2a6de4['on']('sendNotificationToUser',async({userEmail:_0x1e0322,toUserEmail:_0x3d22ac,message:_0xa2532e})=>{const _0x38595b=_0x183625,_0x370e2d=await _0x5a0453(_0x3d22ac);_0x370e2d[_0x38595b(0x1ec)]?await chat[_0x38595b(0x1f9)](_0x1e0322,_0x3d22ac,_0xa2532e)?(_0x370e2d[_0x38595b(0x1d5)]&&io['to'](recipientSocketId)[_0x38595b(0x1e7)]('privateMessage',{'userId':userId,'message':_0xa2532e}),_0x2a6de4[_0x38595b(0x1e7)]('messageStatus',{'success':!![],'message':_0x38595b(0x1aa)})):_0x2a6de4[_0x38595b(0x1e7)](_0x38595b(0x1b4),{'success':![],'message':_0x38595b(0x151)+_0x3d22ac+'\x27.\x20Inténtalo\x20de\x20nuevo.\x20😳'}):_0x2a6de4[_0x38595b(0x1e7)](_0x38595b(0x1b4),{'success':![],'message':_0x38595b(0x15d)+_0x3d22ac+_0x38595b(0x1eb)});}),_0x2a6de4['on'](_0x183625(0x141),async({userEmail:_0x6f2cbb})=>{const _0x26ce80=_0x183625,_0x2b8f0c=await chat[_0x26ce80(0x1c0)](_0x6f2cbb,0xa);io['to'](recipientSocketId)[_0x26ce80(0x1e7)](_0x26ce80(0x189),{'notifications':_0x2b8f0c});}),_0x2a6de4['on']('sendMessageToUser',async({userId:_0x3b95ff,toUserId:_0x4a9ce3,message:_0x58f46a})=>{const _0x20b77c=_0x183625,_0x11d764=users[_0x4a9ce3];let _0x12a8f7=_0x11d764;!_0x11d764&&(_0x12a8f7=await chat[_0x20b77c(0x1d2)](_0x4a9ce3));if(_0x12a8f7){const _0x33ce11=await chat[_0x20b77c(0x17d)](_0x3b95ff,_0x4a9ce3);await chat[_0x20b77c(0x1f5)](_0x33ce11,_0x3b95ff,_0x58f46a)&&(_0x11d764&&io['to'](_0x11d764)['emit']('privateMessage',{'userId':_0x3b95ff,'message':_0x58f46a})),_0x2a6de4[_0x20b77c(0x1e7)](_0x20b77c(0x1b4),{'success':!![],'message':_0x20b77c(0x16d)});}else _0x2a6de4[_0x20b77c(0x1e7)]('messageStatus',{'success':![],'message':_0x20b77c(0x195)+_0x4a9ce3+_0x20b77c(0x1c8)});}),_0x2a6de4['on'](_0x183625(0x16c),()=>{const _0x1e600c=_0x183625,{companyId:_0x1e4887}=_0x2a6de4;_0x1e4887&&connectedEmployees[_0x1e4887]?(connectedEmployees[_0x1e4887]=connectedEmployees[_0x1e4887][_0x1e600c(0x198)](_0x4d5b68=>_0x4d5b68[_0x1e600c(0x143)]!==_0x2a6de4['id']),connectedEmployees[_0x1e4887][_0x1e600c(0x15e)]===0x0&&delete connectedEmployees[_0x1e4887]):console[_0x1e600c(0x15c)](_0x1e600c(0x1a4)+_0x2a6de4['id']+_0x1e600c(0x1a7));}),_0x2a6de4['on'](_0x183625(0x1bc),_0x2cf732=>{const _0x374e03=_0x183625;console['log']('Nueva\x20notificación:',_0x2cf732),_0x2a6de4[_0x374e03(0x1cf)]['emit'](_0x374e03(0x183),_0x2cf732);});});const companyName=_0x3d7dc0(0x1c3);serverExpress[_0x3d7dc0(0x17b)](require(_0x3d7dc0(0x1d6))),serverExpress[_0x3d7dc0(0x17b)](require(_0x3d7dc0(0x162))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1fb))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x140))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x177))),serverExpress['use'](companyName,require(_0x3d7dc0(0x14f))),serverExpress[_0x3d7dc0(0x17b)](companyName,require('./router/links/subscription')),serverExpress['use'](companyName,require(_0x3d7dc0(0x17a))),serverExpress[_0x3d7dc0(0x17b)](companyName,require('./router/links/delivery')),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1f0))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1a9))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1db))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1a2))),serverExpress[_0x3d7dc0(0x17b)](companyName,require(_0x3d7dc0(0x1de))),serverExpress[_0x3d7dc0(0x17b)](require(_0x3d7dc0(0x1f3))),serverExpress['use'](express[_0x3d7dc0(0x1f4)](path[_0x3d7dc0(0x18b)](__dirname,_0x3d7dc0(0x1da))));const os=require('os');function getLocalIP(){const _0x14fa7a=_0x3d7dc0,_0x2f5646=os[_0x14fa7a(0x14b)]();for(let _0x1d5bc8 in _0x2f5646){for(let _0x4d69c7=0x0;_0x4d69c7<_0x2f5646[_0x1d5bc8][_0x14fa7a(0x15e)];_0x4d69c7++){const _0x2298ca=_0x2f5646[_0x1d5bc8][_0x4d69c7];if(_0x2298ca['family']===_0x14fa7a(0x1ab)&&!_0x2298ca[_0x14fa7a(0x188)])return _0x2298ca[_0x14fa7a(0x1dc)];}}return'127.0.0.1';}serverExpress['listen'](serverExpress['get'](_0x3d7dc0(0x174)),_0x3d7dc0(0x1cd),()=>{const _0x212d34=_0x3d7dc0;console[_0x212d34(0x15c)]('Server\x20running\x20on\x20http://'+getLocalIP()+':'+serverExpress[_0x212d34(0x1b8)](_0x212d34(0x174)));});const mysql=require(_0x3d7dc0(0x1af)),{promisify}=require(_0x3d7dc0(0x1d3)),pool=mysql[_0x3d7dc0(0x180)]({'host':_0x3d7dc0(0x19a),'user':'u995592926_bestpoint','password':_0x3d7dc0(0x1e8),'database':_0x3d7dc0(0x1d7),'waitForConnections':!![],'connectionLimit':0xa,'queueLimit':0x0});pool[_0x3d7dc0(0x178)]((_0x2a29c5,_0x10220d)=>{const _0x5124cd=_0x3d7dc0;_0x2a29c5&&(_0x2a29c5[_0x5124cd(0x19d)]===_0x5124cd(0x1b0)&&console[_0x5124cd(0x1c2)](_0x5124cd(0x1a6)),_0x2a29c5[_0x5124cd(0x19d)]===_0x5124cd(0x1d1)&&console[_0x5124cd(0x1c2)]('La\x20base\x20de\x20datos\x20tiene\x20muchas\x20conexiones.'),_0x2a29c5[_0x5124cd(0x19d)]===_0x5124cd(0x160)&&console[_0x5124cd(0x1c2)]('La\x20conexión\x20a\x20la\x20base\x20de\x20datos\x20fue\x20rechazada.'));_0x10220d&&(_0x10220d[_0x5124cd(0x185)](),console[_0x5124cd(0x15c)](_0x5124cd(0x1f8)));return;}),pool[_0x3d7dc0(0x13f)]=promisify(pool[_0x3d7dc0(0x13f)]);let mainWindow,activationWindow;function _0x4283(_0x13b8c6,_0x12047a){const _0xd009d2=_0xd009();return _0x4283=function(_0x42834c,_0x3c09e7){_0x42834c=_0x42834c-0x13f;let _0x406dc3=_0xd009d2[_0x42834c];return _0x406dc3;},_0x4283(_0x13b8c6,_0x12047a);}const createMainWindow=()=>{const _0x4ed6fc=_0x3d7dc0;mainWindow=new BrowserWindow({'width':0x320,'height':0x258}),mainWindow[_0x4ed6fc(0x1f1)](),mainWindow['loadURL']('http://localhost:'+serverExpress['get'](_0x4ed6fc(0x174)));};async function verificarTokenActivo(){const _0x1a8dac=_0x3d7dc0,_0x368262=_0x1a8dac(0x193);try{const _0x1eaf5f=await pool['query'](_0x368262,[TOKEN]);return console[_0x1a8dac(0x15c)](_0x1eaf5f[0x0]),_0x1eaf5f[0x0]['active']===0x1?(console[_0x1a8dac(0x15c)](_0x1a8dac(0x170)),!![]):(console[_0x1a8dac(0x15c)](_0x1a8dac(0x18a)),![]);}catch(_0x675534){return console[_0x1a8dac(0x1c2)](_0x1a8dac(0x148),_0x675534),![];}}async function actualizarToken(){const _0x29250b=_0x3d7dc0,_0x5827b2=_0x29250b(0x179);await pool[_0x29250b(0x13f)](_0x5827b2,[TOKEN]);}ipcMain['on'](_0x3d7dc0(0x1e4),async(_0x346d9d,_0x301dbd)=>{const _0x357f31=_0x3d7dc0,_0x408848=await actualizarToken(_0x301dbd);_0x408848?_0x346d9d[_0x357f31(0x1d4)](_0x357f31(0x1ef),_0x357f31(0x169)):_0x346d9d[_0x357f31(0x1d4)](_0x357f31(0x1ca),_0x357f31(0x1c4));});const showActivationWindow=()=>{const _0x5c2331=_0x3d7dc0;activationWindow=new BrowserWindow({'width':0x190,'height':0x12c,'parent':mainWindow,'modal':!![],'webPreferences':{'nodeIntegration':!![]}});const _0x1b34f1=path[_0x5c2331(0x18b)](__dirname,'activation.html');activationWindow[_0x5c2331(0x18f)](_0x1b34f1),activationWindow['on'](_0x5c2331(0x147),_0x54abc7=>{!tokenValidado&&_0x54abc7['preventDefault']();});};app['on'](_0x3d7dc0(0x158),async()=>{const _0x234edb=_0x3d7dc0;await check_if_exist_updates();thiIsADemo&&await initialize_demo();initialize_software();if(await the_software_have_a_token())createMainWindow();else{if(await verificarTokenActivo())await actualizarToken(),await initialize_token(),createMainWindow();else{dialog[_0x234edb(0x146)]({'type':_0x234edb(0x1ba),'title':_0x234edb(0x1ce),'message':_0x234edb(0x1c6)}),app[_0x234edb(0x1d0)]();return;}}}),app['on']('window-all-closed',()=>{const _0x38699f=_0x3d7dc0;process['platform']!==_0x38699f(0x19c)&&app['quit']();});
+const system=require('./lib/system');
+const thiIsADemo=true;
+
+//----------------------desktop application
+const { app, BrowserWindow, dialog, ipcMain  } = require('electron');
+
+
+//----------------------server application
+const express=require('express');
+const morgan=require('morgan');
+const {engine}=require('express-handlebars');
+const multer=require('multer');
+const flash=require('connect-flash');
+const session=require('express-session');
+const passport=require('passport');
+const { database } = require('./keys');
+
+const { v4: uuid } = require('uuid');
+const path=require('path');
+
+//ReCAPTCHA of Google
+const { RecaptchaV2 } = require('express-recaptcha');
+
+//this is for create a demo of PLUS
+const nodePersist = require('node-persist');
+nodePersist.init({
+  dir: path.join(__dirname, 'data')
+});
+
+async function initialize_software() {
+    const initialToken = await nodePersist.get('installToken');
+
+    //we will see if exist the token in the database
+    if (!initialToken) {
+      await nodePersist.set('installToken', 'false');
+    }
+}
+
+async function the_software_have_a_token() {
+    const initialToken = await nodePersist.get('installToken');
+    if (!initialToken) {
+      return false;
+    }
+    
+    return initialToken=='true';
+}
+
+async function remove_install_token() {
+    await nodePersist.removeItem('installToken');
+    console.log('installToken eliminado');
+}
+
+async function initialize_token() {
+    const installDate = await nodePersist.get('installToken');
+    await nodePersist.set('installToken', 'true');
+}
+
+async function initialize_demo() {
+    const installDate = await nodePersist.get('installDate');
+
+    if (!installDate) {
+      // Si no existe la fecha de instalación, la guarda
+      const currentDate = new Date().toISOString();
+      await nodePersist.set('installDate', currentDate);
+      console.log("Fecha de instalación guardada:", currentDate);
+    } else {
+      console.log("Fecha de instalación existente:", installDate);
+    }
+}
+
+async function is_demo_expired() {
+    const installDate = await nodePersist.get('installDate');
+    if (!installDate) {
+      console.log("No se encontró la fecha de instalación");
+      return false;
+    }
+  
+    const installDateObj = new Date(installDate);
+    const currentDate = new Date();
+    const diffTime = currentDate - installDateObj;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24); // Convertir la diferencia a días
+  
+    if (diffDays > 15) {
+      console.log("La demo ha expirado.");
+      return true;
+    } else {
+      console.log("La demo aún está activa.");
+      return false;
+    }
+}
+
+
+//*------------------UPDATES-----------------------------------------//
+const simpleGit = require('simple-git');
+const fs = require('fs');
+
+const repoPath = path.join(__dirname); //this change when are a version of desktop
+const git = simpleGit(repoPath);
+
+//this is for get the repository of github
+const repoURL = 'https://github.com/EduardoMartinez68/VERSIONES_PLUS'; // Reemplaza con la URL de tu repositorio
+const remote = 'origin';
+
+//if not have a repository remote, we can setting her
+/*
+git.addRemote(remote, repoURL).then(() => {
+    console.log('Repositorio remoto configurado correctamente');
+}).catch(err => {
+    console.error('Error al agregar el repositorio remoto', err);
+});
+*/
+
+async function check_if_exist_updates(){
+    try {
+        // Make sure the remote repository is configured correctly
+        await git.fetch(remote);
+
+        //ignore change in the folder 'img/'
+        await git.raw(['update-index', '--assume-unchanged', '../src/public/img/uploads/']);
+
+        //Compare if there are remote changes
+        const log = await git.log(['origin/main', '-1']);
+        const localLog = await git.log(['HEAD', '-1']);
+
+        //we will see if us has is the last has of the repository
+        if (log.latest.hash !== localLog.latest.hash) {
+            console.log('🔄 Nueva versión encontrada, actualizando...');
+
+            await git.pull('origin', 'main', { '--rebase': null });
+            
+            //show a dialog for that the user know that exist a new version of PLUS
+            dialog.showMessageBoxSync({
+                type: 'info',
+                title: 'Actualización',
+                message: 'Se ha descargado una nueva versión. Reinicia la aplicación para aplicar los cambios.',
+                buttons: ['Reiniciar ahora']
+            });
+
+            app.relaunch();
+            app.quit();
+        } else {
+            console.log('✅ La aplicación ya está actualizada.');
+        }
+    } catch (error) {
+        console.error('❌ Error verificando actualizaciones:', error);
+    }
+}
+
+
+//*------------------initializations-----------------------------------------//
+const serverExpress =express();
+
+require('./lib/passport');
+//require('./lib/addFrom');
+require('./lib/editFrom');
+
+//*-----------------------------------------------------------settings-----------------------------------------//
+serverExpress.set('port',process.env.PORT || 4000);
+serverExpress.set('views',path.join(__dirname,'views'))
+serverExpress.engine('.hbs',engine({ //we will create the engine for the web
+    defaultLayout:'main',
+    layoutsDir: path.join(serverExpress.get('views'),'layouts'),
+    partialsDir: path.join(serverExpress.get('views'),'partials'),
+    extname: '.hbs',
+    helpers:require('./lib/handlebars')
+}))
+serverExpress.set('view engine','.hbs');
+
+
+//*-----------------------------------------------------------middlewares-----------------------------------------//
+require('dotenv').config();
+const {APP_PG_USER,APP_PG_HOST,APP_PG_DATABASE,APP_PG_PASSWORD,APP_PG_PORT, TOKEN}=process.env; //this code is for get the data of the database
+
+const pg = require('pg');
+const pgPool = new pg.Pool({
+    user: APP_PG_USER,
+    host: APP_PG_HOST,
+    database: APP_PG_DATABASE,
+    password: APP_PG_PASSWORD,
+    port: APP_PG_PORT,
+    /*
+    ssl: {
+        rejectUnauthorized: false,
+    }*/
+    
+});
+
+
+serverExpress.use(session({
+    secret: 'FudSession',
+    resave: false ,
+    saveUninitialized:false,
+    store: new (require('connect-pg-simple')(session))({
+        pool : pgPool,
+        tableName : 'session'  
+      }),
+    //store: new MySQLStore(pool)
+}));
+
+/*
+--------------CAPTCHA--------------
+const {MY_SITE_KEYS,MY_SECRET_KEY}=process.env; //this code is for get the data of the database
+const recaptcha = new RecaptchaV2(MY_SITE_KEYS, MY_SECRET_KEY); //this is for load the Recaptcha in the web for delete to the bots
+serverExpress.use(recaptcha.middleware.verify);
+*/
+
+//*-----------------------------------------------------------activate the our library-----------------------------------------// 
+serverExpress.use(flash());
+serverExpress.use(morgan('dev'));
+serverExpress.use(express.urlencoded({extended:false}));
+serverExpress.use(express.json());
+serverExpress.use(passport.initialize());
+serverExpress.use(passport.session());
+
+const storage=multer.diskStorage({ //this function is for load a image in the forms
+    destination: path.join(__dirname,'public/img/uploads'),
+    filename: (req,file,cb,filename)=>{
+        cb(null,uuid()+path.extname(file.originalname));
+    }
+});
+
+serverExpress.use(multer({storage: storage}).single('image'));
+
+
+
+//*-----------------------------------------------------------global variables-----------------------------------------//
+serverExpress.use((req,res,next)=>{
+    serverExpress.locals.success=req.flash('success');
+    serverExpress.locals.message=req.flash('message');
+    serverExpress.locals.user=req.user;
+    serverExpress.locals.company=req.company;
+    serverExpress.locals.pack_company = 0;
+    serverExpress.locals.pack_branch = 0;
+    next();
+});
+
+
+//*-----------------------------------------chat online-----------------------------------------//
+const http = require('http');
+const server = http.createServer(serverExpress);
+const { Server } = require("socket.io");
+const io = new Server(server);
+const users = {}; // object for  mapear users IDs with Socket IDs
+const connectedEmployees = {}; //this is for that we know how many employees is connection
+const companyLimitsCache = {}; //this is for save the limit of employees for company. This is for that we not need to search in the database
+
+const chat = require('./services/chat.js');
+
+io.on('connection', async(socket) =>{
+
+    //*-----------------------------------LOGIN-----------------------------------
+    // save the relation with the user and his socket ID
+    socket.on('registerUser', async(userId,companyId) => {
+        //we will see if exist the list company, if the list not exist we will create the list of the company
+        const companyConnections = connectedEmployees[companyId] || []; 
+
+        //we will see if the user is connecting to this company. 
+        //This is for that only search the max of employees of the company for one when a new user is connecting
+        const userAlreadyConnected = companyConnections.some(
+            (connection) => connection.userId === userId
+        );
+
+        //if the user is connecting in other device we will send a message of rejection
+        if (userAlreadyConnected) {
+            socket.emit(
+            "connectionRejected",
+            "Ups, parece que ya estás conectado en otro dispositivo."
+            );
+            return;
+        }
+
+        //we will see if the user is in DESKTOP 
+        if(system!='desktop'){ //if the user not is in the desktop, we is in the server
+            // we will see if exist the limit of employees in caché
+            if (!companyLimitsCache[companyId]) {
+                // if not exist in the caché, we will get from the database
+                companyLimitsCache[companyId] = await chat.get_max_employee_of_this_company(companyId); // save in the caché
+            }
+
+            //her we will get the max employees from the database
+            const maxEmployees= companyLimitsCache[companyId];
+
+            //we will see if the company is to limit of connected devices
+            if (companyConnections.length >= maxEmployees) {
+                socket.emit(
+                "connectionRejected",
+                "Ups, parece que alcanzaste tu límite de dispositivos conectados. Por favor, actualiza tu membresía."
+                );
+                return;
+            }
+        }
+
+        // Relate the socket to the company
+        socket.companyId = companyId;
+
+        // add the user to the connection of the company
+        companyConnections.push({ userId, socketId: socket.id });
+        connectedEmployees[companyId] = companyConnections;
+
+        //if the user is connection, we will get all the new notifications of the user for send to the frontend
+        const notifications=await chat.get_the_first_notification(userId,10);
+        io.to(userId).emit('privateNotifications', {notifications});
+    });
+
+    async function create_to_user(toUserEmail){
+        //we will see if exist the email in the database of socket for know if is connection
+        const theUserIsConnect = users[toUserEmail];
+
+        let canSend=theUserIsConnect; //this is for know if can send the notification
+
+        //we will see if exist the user in the socket for send a message or save in the database
+        if (!theUserIsConnect) {
+            //if the user not is connection we will see if exist this email in the database 
+            canSend=await chat.this_email_exist(toUserId);
+        }
+        
+        //we going to make the to User for know the answer of search. 
+        //We will see if can send a message to user because exist in the database or is connection now
+        const toUser={
+            canSend,
+            theUserIsConnect
+        }
+        return toUser;
+    }
+
+
+    //*-----------------------------------NOTIFICATIONS-----------------------------------
+    //send the new notification to a user in specific
+    socket.on('sendNotificationToUser', async({ userEmail, toUserEmail, message }) => {
+        const toUser=await create_to_user(toUserEmail);
+
+        //we will see if we can send the notification when see if the email exist in the web or in the database
+        if(toUser.canSend){
+            //we will see if can save the new notification in the database redis 
+            if(await chat.create_notification(userEmail, toUserEmail, message)){
+                //if the user is connection send the notification to his frontend
+                if(toUser.theUserIsConnect){
+                    io.to(recipientSocketId).emit('privateMessage', {userId,message});
+                }
+
+                //return a answer success for the frontend of the user that send the message
+                socket.emit('messageStatus', { success: true, message: 'Mensaje enviado con éxito. 👌' });
+            }
+            else{
+                //if we not can save the notification we will send a message of error
+                socket.emit('messageStatus', { success: false, message: `No pudimos enviar el mensaje al usuario '${toUserEmail}'. Inténtalo de nuevo. 😳` });
+            }
+        }else{
+            //if the user not exist send a answer of error
+            socket.emit('messageStatus', { success: false, message: `El usuario '${toUserEmail}' no existe. 🤔` });
+        }
+    });
+
+    //send the new notification to a user in specific
+    socket.on('getTheFirstTenNotifications', async({ userEmail}) => {
+        const notifications=await chat.get_the_first_notification(userEmail,10);
+        io.to(recipientSocketId).emit('privateNotifications', {notifications});
+    });
+
+
+    //*-----------------------------------MESSAGES-----------------------------------
+    //send the message to a user in specific
+    socket.on('sendMessageToUser', async({ userId, toUserId, message }) => {
+        //we will see if exist the email in the database of socket
+        const recipientSocketId = users[toUserId];
+        let canSend=recipientSocketId; //this is for know if can be send
+
+        //we will see if exist the user in the socket for send a message or save in the database
+        if (!recipientSocketId) {
+            //if the user not is connection we will see if exist this email in the database 
+            canSend=await chat.this_email_exist(toUserId);
+        }
+
+        //if the email exist we will to save the message in the database
+        if(canSend){
+            // get the data of the  sender (user that send the message)
+            const chatId = await chat.create_new_chat(userId, toUserId); //Method to obtain or create a chat between both users
+
+            //we will see if can save the new message in the database
+            if(await chat.send_new_message(chatId, userId, message)){
+                //if the user is connection send the notification 
+                if(recipientSocketId){
+                    io.to(recipientSocketId).emit('privateMessage', {userId,message});
+                }
+            }
+            
+            //return a answer success for the frontend
+            socket.emit('messageStatus', { success: true, message: 'Mensaje enviado con éxito' });
+        }else{
+            //if the user not exist send a answer of error
+            socket.emit('messageStatus', { success: false, message: `Este email '${toUserId}' no existe 🤔` });
+        }
+    });
+
+    // delete to the user of the registry when disconnecting
+    socket.on('disconnect', () => {
+        // Obtener el ID de la empresa asociado al socket
+        const { companyId } = socket;
+
+        if (companyId && connectedEmployees[companyId]) {
+            // Filtrar la lista para eliminar al usuario desconectado
+            connectedEmployees[companyId] = connectedEmployees[companyId].filter(
+            (connection) => connection.socketId !== socket.id
+            );
+
+            // Si no quedan conexiones en esta empresa, eliminar la entrada del objeto
+            if (connectedEmployees[companyId].length === 0) {
+                delete connectedEmployees[companyId];
+            }
+        } else {
+            console.log(
+            `Socket ${socket.id} desconectado, pero no estaba asociado a ninguna empresa.`
+            );
+        }
+    });
+
+    // Escuchar un mensaje enviado por un usuario
+    socket.on('sendNotification', (notification) => {
+        console.log('Nueva notificación:', notification);
+
+        // Emitir la notificación a todos los demás usuarios
+        socket.broadcast.emit('newNotification', notification); 
+    });
+
+});
+
+//*-----------------------------------------------------------routes-----------------------------------------//
+const companyName='/links' //links
+serverExpress.use(require('./router'))
+serverExpress.use(require('./router/authentication'))
+serverExpress.use(companyName,require('./router/links'))
+serverExpress.use(companyName,require('./router/links/fudone'))
+serverExpress.use(companyName,require('./router/links/ceo'))
+serverExpress.use(companyName,require('./router/links/branch'))
+serverExpress.use(companyName,require('./router/links/subscription'))
+serverExpress.use(companyName,require('./router/links/store'))
+serverExpress.use(companyName,require('./router/links/delivery'))
+serverExpress.use(companyName,require('./router/links/app'))
+serverExpress.use(companyName,require('./router/links/CRM'))
+serverExpress.use(companyName,require('./router/links/desktop'))
+serverExpress.use(companyName,require('./router/links/boutique'))
+serverExpress.use(companyName,require('./router/links/cashCut'))
+
+serverExpress.use(require('./lib/addFrom'));
+
+//add database
+//app.use(companyName,require('./router/addDatabase'))
+
+//public
+serverExpress.use(express.static(path.join(__dirname,'public')));
+
+//*-----------------------------------------------------------Server application-----------------------------------------//
+/*
+    SETTING IN PACKAGE.JSON
+  "main": "index_desktop.js",
+  "scripts": {
+    "start": "node src/index_desktop.js",
+    "dev": "nodemon src/"
+  },
+*/
+
+//this is for get the IP of the computer that is the server
+const os = require('os');
+
+function getLocalIP() {
+    const interfaces = os.networkInterfaces();
+    for (let iface in interfaces) {
+        for (let i = 0; i < interfaces[iface].length; i++) {
+            const address = interfaces[iface][i];
+            if (address.family === 'IPv4' && !address.internal) {
+                return address.address;
+            }
+        }
+    }
+    return '127.0.0.1';
+}
+
+//starting the server in the computer
+serverExpress.listen(serverExpress.get('port'), '0.0.0.0', () => {
+    console.log(`Server running on http://${getLocalIP()}:${serverExpress.get('port')}`);
+});
+
+//*------------------------------------------------------------DATABASE SERVER--------------------------------------------//
+const mysql = require('mysql');
+const { promisify } = require('util');
+const pool = mysql.createPool({
+    host: '193.203.166.165',
+    user: 'u995592926_bestpoint',
+    password: 'Bobesponja48*',
+    database: 'u995592926_bestpoint',
+    waitForConnections: true,
+    connectionLimit: 10,  // Puedes ajustar el número según tus necesidades
+    queueLimit: 0
+});
+
+pool.getConnection((err, connection) => {
+    if (err) {
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.error('La conexión a la base de datos fue cerrada.');
+        }
+        if (err.code === 'ER_CON_COUNT_ERROR') {
+            console.error('La base de datos tiene muchas conexiones.');
+        }
+        if (err.code === 'ECONNREFUSED') {
+            console.error('La conexión a la base de datos fue rechazada.');
+        }
+    }
+
+    if (connection) {
+        connection.release();
+        console.log('Conexión a la base de datos exitosa MYSQL.');
+    }
+
+    return;
+})
+
+pool.query=promisify(pool.query)
+
+//*-----------------------------------------------------------Desktop application-----------------------------------------//
+//we will see if the APP is for desktop
+/*
+    SETTING IN PACKAGE.JSON
+  "main": "src/index_desktop.js",
+  "scripts": {
+    "start": "npx electron .",
+    "dev": "nodemon src/",
+    "electron": "electron ."
+  },
+
+
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+*/
+//this is for create the UI in the windows
+let mainWindow;
+let activationWindow;
+const createMainWindow = () => {
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+    });
+
+    //This is to make the screen grow to full screen
+    mainWindow.maximize();
+
+    // load the URL of the server Express
+    mainWindow.loadURL(`http://localhost:${serverExpress.get('port')}`);
+};
+
+
+// Manejar la validación del token desde la ventana de activación
+async function verificarTokenActivo() {
+    const query = `
+        SELECT * FROM pagos 
+        WHERE token = ?
+    `;
+
+    try {
+        const results = await pool.query(query, [TOKEN]);
+        console.log(results[0])
+
+        if (results[0].active === 1) {
+            console.log('Token encontrado y activo.');
+            return true;  // El token está activo
+        } else {
+            console.log('El token no está activo o no existe.');
+            return false;  // El token no está activo o no existe
+        }
+    } catch (err) {
+        console.error('Error al verificar el token:', err);
+        return false;  // Si hay un error, retorna false
+    }
+}
+
+async function actualizarToken() {
+    const query = `
+        UPDATE pagos 
+        SET active = false
+        WHERE token = ?
+    `;
+    
+    await pool.query(query, [TOKEN]);
+}
+
+ipcMain.on('validar-token', async (event, token) => {
+    const esValido = await actualizarToken(token);
+
+    if (esValido) {
+        event.reply('token-valido', '¡Token activado correctamente!');
+    } else {
+        event.reply('token-invalido', 'Token inválido o ya utilizado. Por favor, verifique e intente de nuevo.');
+    }
+});
+
+const showActivationWindow = () => {
+    activationWindow = new BrowserWindow({
+        width: 400,
+        height: 300,
+        parent: mainWindow,
+        modal: true,
+        webPreferences: {
+            nodeIntegration: true,
+        },
+    });
+
+    // Usar path.join para asegurar la ruta correcta
+    const activationPagePath = path.join(__dirname, 'activation.html');
+
+    // Cargar la página de activación desde la ruta correcta
+    activationWindow.loadFile(activationPagePath);
+
+    // Prevenir que la ventana principal se cargue hasta que el token sea validado
+    activationWindow.on('close', (e) => {
+        if (!tokenValidado) {
+            e.preventDefault();
+        }
+    });
+};
+
+
+// whne Electron is ready, load the web in the screen
+app.on('ready', async () => {
+    await check_if_exist_updates();
+
+    //we will see if the software is a demo
+    if(thiIsADemo){
+        //start the demo when the exe open for first time
+        await initialize_demo();
+
+
+        //we will see if the demo expired
+        /*
+        if (await is_demo_expired()) {
+            dialog.showMessageBoxSync({
+                type: 'warning',
+                title: 'Demo Expirada',
+                message: 'Tu demo de 15 días ha expirado. Por favor, compra la versión completa y sigue creciendo con ED PLUS 🚀.',
+            });
+            app.quit(); // close the application
+            return;
+        }
+        */
+    }
+
+    //await remove_install_token();
+    initialize_software(); //this is for initialize the token of the software
+    if(await the_software_have_a_token()){
+        // load the windows if the demo no was expired
+        createMainWindow();
+    }else{
+        if(await verificarTokenActivo()){
+            await actualizarToken();
+            await initialize_token();
+            createMainWindow();
+        }else{
+            dialog.showMessageBoxSync({
+                type: 'warning',
+                title: 'Token Invalido',
+                message: 'Su Token es iunvalido.',
+            });
+            app.quit(); // close the application
+            return;
+        }
+    }
+});
+
+// clouse the screen
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+/*
+server.listen(app.get('port'), () => {
+    console.log('Servidor corriendo en http://localhost:' + app.get('port'));
+});
+*/

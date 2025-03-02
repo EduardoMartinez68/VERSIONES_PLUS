@@ -1,1 +1,32 @@
-const _0x5a59ee=_0x41b4;function _0x41b4(_0x53ad5b,_0x13d5e5){const _0x376acc=_0x376a();return _0x41b4=function(_0x41b4cc,_0x652025){_0x41b4cc=_0x41b4cc-0x15a;let _0x1c9ab8=_0x376acc[_0x41b4cc];return _0x1c9ab8;},_0x41b4(_0x53ad5b,_0x13d5e5);}(function(_0x42a8be,_0x59a861){const _0x58c42d=_0x41b4,_0x4ca58e=_0x42a8be();while(!![]){try{const _0x34213f=-parseInt(_0x58c42d(0x164))/0x1+parseInt(_0x58c42d(0x169))/0x2+parseInt(_0x58c42d(0x166))/0x3+parseInt(_0x58c42d(0x15f))/0x4+parseInt(_0x58c42d(0x160))/0x5*(parseInt(_0x58c42d(0x162))/0x6)+-parseInt(_0x58c42d(0x165))/0x7*(-parseInt(_0x58c42d(0x15e))/0x8)+-parseInt(_0x58c42d(0x15a))/0x9;if(_0x34213f===_0x59a861)break;else _0x4ca58e['push'](_0x4ca58e['shift']());}catch(_0xd18ade){_0x4ca58e['push'](_0x4ca58e['shift']());}}}(_0x376a,0x90e49));const {Client}=require('pg'),{promisify}=require(_0x5a59ee(0x163)),{database}=require(_0x5a59ee(0x15d));require(_0x5a59ee(0x168))['config']();function _0x376a(){const _0x2fc37f=['7SBANvT','2817849HmNVCD','env','dotenv','1738888tzFuOF','error','then','20692242ZfOBRr','log','Conexión\x20exitosa\x20a\x20PostgreSQL','./keys','7335424vjUKcP','2486572qMDKfO','5MfFjbK','catch','1473006QojPUZ','util','700180OzhMBs'];_0x376a=function(){return _0x2fc37f;};return _0x376a();}const {APP_PG_USER,APP_PG_HOST,APP_PG_DATABASE,APP_PG_PASSWORD,APP_PG_PORT}=process[_0x5a59ee(0x167)],client=new Client({'user':APP_PG_USER,'host':APP_PG_HOST,'database':APP_PG_DATABASE,'password':APP_PG_PASSWORD,'port':APP_PG_PORT});client['connect']()[_0x5a59ee(0x16b)](()=>{const _0x1a479e=_0x5a59ee;console[_0x1a479e(0x15b)](_0x1a479e(0x15c));})[_0x5a59ee(0x161)](_0x21568e=>{const _0x48b940=_0x5a59ee;console[_0x48b940(0x16a)]('Error\x20al\x20conectar\x20a\x20PostgreSQL',_0x21568e);}),promisify(client['query']),module['exports']=client;
+const  { Client }=require('pg');
+const {promisify}=require('util');
+const {database}=require('./keys');
+
+//we will watch all the data of the database
+require('dotenv').config();
+const {APP_PG_USER,APP_PG_HOST,APP_PG_DATABASE,APP_PG_PASSWORD,APP_PG_PORT}=process.env;
+
+
+const client = new Client({
+  user: APP_PG_USER,
+  host: APP_PG_HOST,
+  database: APP_PG_DATABASE,
+  password: APP_PG_PASSWORD,
+  port: APP_PG_PORT,
+  /*
+  ssl: {
+    rejectUnauthorized: false,
+  }*/
+});
+
+client.connect()
+  .then(() => {
+    console.log('Conexión exitosa a PostgreSQL');
+    // Realiza tus operaciones con la base de datos aquí
+  })
+  .catch((error) => {
+    console.error('Error al conectar a PostgreSQL', error);
+  });
+
+promisify(client.query);
+module.exports=client;
