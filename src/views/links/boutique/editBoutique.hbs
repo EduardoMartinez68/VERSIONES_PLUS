@@ -1,0 +1,279 @@
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .variant-card {
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    }
+
+    .variant-card.fade-out {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    .btn-sm {
+        z-index: 10;
+    }
+
+    .icon-boutique{
+        width: 80px;
+        height: auto;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {{#each boutique}}
+            <form action="/links/{{id_companies}}/{{id_branches}}/{{id}}/edit-boutique" method="POST" id="productoForm">
+                <!-- Datos generales del producto -->
+                <h6>Editar Producto Boutique 👗</h6>
+                <hr class="my-4">
+                <label>Caracteristicas del Producto</label>
+                <br><br>
+                <!--this is for that the backend know the old information of the product--->
+                <input type="text" class="form-control" name="barcode_old"
+                    placeholder="Código de Barras" required value="{{barcode}}" hidden>
+                <input type="text" class="form-control"  name="name_old"
+                    placeholder="Nombre del producto" required value="{{name}}" hidden>
+                <input type="text" class="form-control"  id="id-boutique"
+                    placeholder="Nombre del producto" required value="{{id}}" hidden>
+
+                <!--this is for that the user add new information--->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="barcode" name="barcode"
+                                placeholder="Código de Barras" required value="{{barcode}}">
+                            <label for="barcode">Código de Barras *</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="nombre" name="name"
+                                placeholder="Nombre del producto" required value="{{name}}">
+                            <label for="nombre">Nombre del Producto *</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" step="0.01" class="form-control" id="max_inventary"
+                                name="max_inventary" placeholder="Maximo inventario" value="{{max_inventary}}">
+                            <label for="max_inventary">Inventario Maximo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-floating my-3">
+                    <textarea class="form-control" id="descripcion" name="description" placeholder="Descripción"
+                        style="height: 100px;">{{description}}</textarea>
+                    <label for="descripcion">Descripción</label>
+                </div>
+
+                <!--information of the branch-->
+                <input type="text" id="id-branch" value="{{id_branches}}" hidden>
+                <input type="text" id="id-company" value="{{id_companies}}" hidden>
+            {{/each}}
+
+
+                <div class="btn-group">
+                    <button class="btn-select btn-active" onclick="showSection('select-1', this)" type="button">Variantes (Talla y Color)</button>
+                    <button class="btn-select" onclick="showSection('select-2', this)" type="button">Nueva lista de Variantes</button>
+                </div>
+
+                <hr class="my-4">
+                <div id="select-1" class="content-section active">
+                    <label>Variantes (Talla y Color)</label>
+                    {{#each tableBoutique}}
+                        <div class="card-body position-relative variant-old">
+                            <button type="button"
+                                class="btn btn-sm btn-danger position-absolute top-0 end-0 m-0 remove-variant"
+                                onclick="delete_product('{{id}}','{{id_dish_and_combo_features}}','{{id_product_and_suppiles_features}}','{{name}}')">
+                                x
+                            </button>
+                            <!--this information is for get the id of the products-->
+                            <input type="text" name="id_dish_and_combo_features[]" value="{{id_dish_and_combo_features}}" hidden>
+                            <input type="text" name="id_product_and_suppiles_features[]" value="{{id_product_and_suppiles_features}}" hidden>
+
+                            <!--this is for show the information of the products-->
+                            <div class="row g-1">
+                                <div class="col-md-1">
+                                    <div class="form-floating">
+                                        {{#if img}}
+                                            <img src="{{img}}" alt="" class="icon-boutique">
+                                        {{else}}
+                                            <img src="/img/icons_first/product.webp" alt="" class="icon-boutique">
+                                        {{/if}}
+                                    </div>
+                                </div>                                    
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="barcode-old[]" placeholder="Talla" required value="{{barcode}}" readonly>
+                                        <label>Codigo de Barras</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="name-old[]" placeholder="Talla" required value="{{name}}" readonly>
+                                        <label>Nombre</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="prieces-old[]" placeholder="Color" required
+                                            value="{{price_1}}">
+                                        <label>Precio *</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" name="existence-old[]"
+                                            placeholder="Existencia" required min="0" value="{{existence}}">
+                                        <label>Existencia *</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <div class="form-floating">
+                                        <button class="btn btn-edit" onclick="edit_product_boutique('{{id_dish_and_combo_features}}')" type="button">✏️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+                <hr>
+                <div id="select-2" class="content-section">
+                    <div id="variantes">
+                        <!-- Aquí se agregarán las variantes dinámicamente -->
+                    </div>
+
+                    <!-- Botón para agregar variantes -->
+                    <div class="col-6 my-2">
+                        <button type="button" class="btn btn-edit" onclick="agregarVariante()">Agregar Variante</button>
+                    </div>
+                </div>
+
+                <!-- Hidden inputs para enviar información extra de las variantes -->
+                <input type="hidden" name="variant_count" id="variant_count" value="0">
+                <input type="hidden" name="variant_json" id="variant_json" value="">
+
+                <br>
+                <!-- Botón para enviar el formulario -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-confirm-message">Actualizar Boutique</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- JavaScript para agregar y eliminar variantes, y validar el formulario -->
+<script>
+    // Función para agregar una variante (tarjeta con campos Talla y Color)
+    function agregarVariante() {
+        const container = document.getElementById("variantes");
+        const variantCard = document.createElement("div");
+        const price = 0;
+        variantCard.className = "card variant-card mb-3";
+        variantCard.innerHTML = `
+        <div class="card-body position-relative">
+          <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-0 remove-variant" onclick="eliminarVariante(this)">
+            x
+          </button>
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" name="talla[]" placeholder="Talla" required>
+                <label>Talla *</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" name="color[]" placeholder="Color" required>
+                <label>Color *</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input type="text" class="form-control" name="prices[]" placeholder="Color" required value="${price}">
+                <label>Precio *</label>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="form-floating">
+                <input type="number" class="form-control" name="existence[]" placeholder="Existencia" required min="0" value="0">
+                <label>Existencia *</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+        container.appendChild(variantCard);
+    }
+
+    // Función para eliminar una variante con animación
+    function eliminarVariante(btn) {
+        const variantCard = btn.closest('.variant-card');
+        if (variantCard) {
+            variantCard.classList.add('fade-out');
+            setTimeout(() => {
+                variantCard.remove();
+            }, 300); // 300ms es la duración de la animación
+        }
+    }
+
+    // Validación del formulario para asegurarse que existe al menos 1 variante y generar el JSON
+    document.getElementById("productoForm").addEventListener("submit", function (event) {
+        const variantContainer = document.getElementById("variantes");
+        const variantCards = variantContainer.querySelectorAll('.variant-card');
+        const variantCardsOld=document.querySelectorAll('.variant-old');
+
+        // Si no hay variantes, cancelar el envío y alertar al usuario.
+        if (variantCards.length>0 && variantCards.length<2) {
+            event.preventDefault();
+            errorMessage('Ups! 😅', "Por favor, agrega al menos dos variante de talla y color.");
+            return false;
+        }
+
+        // Verificar que no existan variantes duplicadas (misma talla y color)
+        const variantSet = new Set();
+        for (const card of variantCards) {
+            const tallaInput = card.querySelector('input[name="talla[]"]');
+            const colorInput = card.querySelector('input[name="color[]"]');
+            const talla = tallaInput ? tallaInput.value.trim().toLowerCase() : "";
+            const color = colorInput ? colorInput.value.trim().toLowerCase() : "";
+            const key = `${talla}|${color}`;
+
+            if (variantSet.has(key)) {
+                event.preventDefault();
+                errorMessage('Ups! 😅', "No pueden existir variantes duplicadas con la misma talla y color.");
+                return false;
+            }
+            variantSet.add(key);
+        }
+
+        // Actualizar el campo oculto con el número de variantes
+        document.getElementById("variant_count").value = variantCards.length;
+    });
+
+
+
+    function edit_product_boutique(id_dish_and_combo_features){
+        const id_company = document.getElementById('id-company').value;
+        const id_branch = document.getElementById('id-branch').value;
+
+        window.location.href = `/links/${id_company}/${id_branch}/${id_dish_and_combo_features}/edit-products-free`;
+    }
+
+    async function delete_product(id_table_boutique,id_dish_and_combo_features,id_product_and_suppiles_features,name){
+        if(await questionMessage('👁️ Eliminar variación', `¿Deseas eliminar la variante ${name}?`)){
+            const id_company = document.getElementById('id-company').value;
+            const id_branch = document.getElementById('id-branch').value;
+            const id_boutique=document.getElementById('id-boutique').value;
+
+            window.location.href = `/links/${id_company}/${id_branch}/${id_boutique}/${id_table_boutique}/${id_dish_and_combo_features}/${id_product_and_suppiles_features}/delete-products-boutique`;
+        }
+    }
+</script>

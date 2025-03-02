@@ -1,0 +1,44 @@
+{{#each roleEmployee}}
+    <br>
+    <div class="container">
+        <center><h6>Editar el rol de '{{name_role}}'</h6></center>
+        <hr>
+    </div>
+{{/each}}
+
+    {{#each roleEmployee}}
+    <form action="/fud/{{id_companies}}/{{id}}/edit-role-employees" method="POST" enctype="multipart/form-data">
+    {{/each}}
+
+    <!--this is for when the user have a subscription in fud one-->
+    {{#each branchFree}}
+        <input type="hidden" value="{{id}}" name="id_branch">
+    {{/each}}
+
+    {{#each roleEmployee}}
+        {{>CEO/type_employee/navbar}}
+    </form>
+    {{/each}}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var checkboxes = document.querySelectorAll('.form-check-input');
+
+        checkboxes.forEach(function (checkbox) {
+            var valueCheck = checkbox.getAttribute('valueCheck');
+            if (valueCheck === 'true') {
+                checkbox.checked = true;
+            }
+        });
+    });
+</script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="/js/desktop/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="/js/desktop/popper.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="/js/desktop/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+

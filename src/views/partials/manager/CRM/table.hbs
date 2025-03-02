@@ -1,0 +1,90 @@
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.5.1/uicons-brands/css/uicons-brands.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.5.1/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.5.1/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+
+
+<div class="add-column-form">
+    {{#each branchFree}}
+    <button id="addColumnBtn" class="btn btn-edit" onclick="nextWeb('{{id_companies}}/{{id}}/add-prospects')">Nueva Oportunidad ⭐</button>
+    <button id="addColumnBtn" class="btn btn-confirm-message" onclick="add_table_crm('{{id_companies}}','{{id}}')">Añadir nueva columna ➕</button>
+    {{/each}}
+    {{#each company}}
+    <button id="addColumnBtn" class="btn btn-confirm-message" onclick="add_table_crm('{{id}}')">Añadir nueva columna +<i
+            class="fi-icon fi-sr-square-plus"></i></button>
+    {{/each}}
+    <button id="addColumnBtn" class="btn btn-edit" onclick="updateOrderInBackend()">Guardar cambios 💾</button>
+</div>
+
+<!--this is for the form of edit-->
+{{#each branchFree}}
+    <input type="hidden" value="{{id}}" id="id_branch">
+    <input type="hidden" value="{{id_companies}}" id="id_company">
+{{/each}}
+
+<div class="board-wrapper">
+    <div class="board" id="container-column">
+        {{#each salesStage}}
+            <div class="column" id="stage-{{id}}" position="{{position}}" idStage="{{id}}" nameStage="{{name}}">
+                <div class="title-column">
+                    <h4 id="h4-name-{{id}}">{{name}}</h4>
+                    <button class="dropdown-btn"><i class="fi fi-br-menu-dots"></i></button>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a onclick="edit_name('{{id}}')" class="dropdown-item">Cambiar nombre</a></li>
+                            <li><a onclick="nextStage('{{id}}')" class="dropdown-item">Mover adelante</a></li>
+                            <li><a onclick="backStage('{{id}}')" class="dropdown-item">Mover atrás</a></li>
+                            <li><a onclick="deleteStage('{{id}}','{{id_companies}}','{{name}}')" class="dropdown-item">Eliminar</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+            </div>
+        {{/each}}
+        {{#each prospects}}
+            <div class="task" idTask="{{id}}" stageId="{{id_sales_stage}}" priority="{{priority}}">
+                <div class="task-badge" style="background-color: {{color}};"></div>
+                <div class="task-header">
+                    <span class="task-name">{{name}}</span>
+                    <button class="edit-btn"><i class="fi fi-br-menu-dots"></i></button>
+                    <div class="dropdown-menu-2">
+                        <ul>
+                            <li><a href="/links/{{id_companies}}/{{id_branches}}/{{id}}/edit-prospects" class="dropdown-item"><i class="fi-icon fi-sr-eye"></i> Ver</a></li>
+                            <li><a onclick="create_an_appointment('{{id_companies}}','{{id_branches}}','{{id}}','{{id_employees}}')" class="dropdown-item"><i class="fi-icon fi-rs-clock-three"></i> Agendar cita</a></li>
+                            <!--<li><a onclick="show_appointment('{{id_companies}}','{{id_branches}}','{{id}}','{{id_employees}}')" class="dropdown-item"><i class="fi-icon fi-rs-clock-three"></i> Agendar cita</a></li>
+                            --->
+                            <li><a onclick="nextWeb('{{id_companies}}/{{id_branches}}/{{id}}/create-invoice-crm')" class="dropdown-item"><i class="fi-icon fi-rs-file-invoice-dollar"></i> Enviar factura PRO-FORMA</a></li>
+
+                            <!--we will see if this prospects have a email for send message-->
+                            {{#if email}}
+                                <li><a href="/links/{{id_companies}}/{{id_branches}}/{{id}}/{{email}}" class="dropdown-item"><i class="fi-icon fi-rr-envelope"></i> Enviar mensaje</a></li>
+                            {{else}}
+                                <li><a onclick="send_to_whatsApp('{{id}}','{{name}}','{{email}}','{{cellphone}}')" class="dropdown-item"><i class="fi-icon fi-rr-envelope"></i> Enviar mensaje</a></li>
+                            {{/if}}
+
+                            <!--we will see if this prospects have a cellphone for send message-->
+                            <li><a onclick="send_to_whatsApp('{{id}}','{{name}}','{{email}}','{{cellphone}}')" class="dropdown-item"><i class="fi-icon fi-brands-whatsapp"></i> Enviar Whatsapp</a></li>
+ 
+
+                            <li><a onclick="delete_prospect('{{id_companies}}','{{id}}')" class="dropdown-item"><i class="fi-icon fi-sr-trash"></i> Eliminar</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="task-date">Contacto: {{timeago  creation_date}} Cierre: {{timeago planned_closure}}</div>
+                <div class="task-progress">Ingresos Estimados: <b>${{estimated_income}}</b></div>
+                <div class="products">{{product_name}}</div>
+                <div class="stark"  priority="{{priority}}">
+                    
+                </div>
+                <div class="appointment"><i class="fi-icon fi-rr-clock-three"></i></div>
+                <div class="img-employee">
+                    {{#if user_photo}}
+                        <img src="{{user_photo}}" alt="">
+                    {{else}}
+                        <img src="https://cdn-icons-png.flaticon.com/512/3177/3177440.png" alt="">
+                    {{/if}}
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>

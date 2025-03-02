@@ -1,0 +1,251 @@
+<style>
+    .form-field {
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+    }
+
+    .form-preview {
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .color-input {
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.25rem;
+        border: 1px solid #ced4da;
+    }
+</style>
+<br>
+
+<!-- Contenedor Principal -->
+<div class="container my-4">
+    <label for=""><i class="fi-icon fi-ss-paint"></i> Editor de formulario</label>
+    <hr>
+    <div class="row">
+        <!-- Sección del Editor de Campos -->
+        <div class="col-md-6">
+            <h3>Campos del Formulario</h3>
+            <div id="fieldsContainer">
+                <!-- Campos agregados aparecerán aquí -->
+                <p class="text-muted">No has agregado ningún campo.</p>
+            </div>
+            <button class="btn btn-edit mt-3" data-bs-toggle="modal" data-bs-target="#addFieldModal">
+                Agregar Campo
+            </button>
+            <button class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#configureSubmitModal">
+                <i class="fas fa-cog"></i> Configurar Botón de Enviar
+            </button>
+        </div>
+        <!-- Sección de Vista Previa -->
+        <div class="col-md-6">
+            <h3>Vista Previa</h3>
+            <div class="form-preview" id="formPreview">
+                <form>
+                    <!-- Campos del formulario aparecerán aquí -->
+                    <p class="text-muted">Aún no has agregado campos al formulario.</p>
+                </form>
+            </div>
+            <button class="btn btn-success mt-3" type="submit">💾 Guardar formulario</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar Campo -->
+<div class="modal fade" id="addFieldModal" tabindex="-1" aria-labelledby="addFieldModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addFieldForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFieldModalLabel">Agregar Nuevo Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="fieldLabel" class="form-label">* Etiqueta (Label)</label>
+                        <input type="text" class="form-control" id="fieldLabel" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fieldPlaceholder" class="form-label">Placeholder</label>
+                        <input type="text" class="form-control" id="fieldPlaceholder" required>
+                    </div>
+                    <!--with this we will get all the data of the form-->
+                    <div class="mb-3">
+                        <label for="fieldType" class="form-label">* Tipo de dato relacionado con la base de datos</label>
+                        <select name="" id="typeDataOfDatabaseAdd" required class="form-select">
+                            <option value="">Selecciona un valor de la base de datos</option>
+                            {{#each dataTable}}
+                                <option column_name="{{column_name}}" data_type="{{data_type}}" is_nullable="{{is_nullable}}" class="dataTable" value="{{column_name}}">{{column_name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fieldType" class="form-label">* Tipo de Input</label>
+                        <select class="form-select" id="fieldType" required>
+                            <option value="">Selecciona un tipo</option>
+                            <option value="text">Texto</option>
+                            <option value="email">Correo Electrónico</option>
+                            <option value="tel">Teléfono</option>
+                            <option value="number">Número</option>
+                            <option value="password">Contraseña</option>
+                            <option value="date">Fecha</option>
+                            <option value="url">URL</option>
+                            <!-- Puedes agregar más tipos según tus necesidades -->
+                        </select>
+                    </div>
+                    <div class="mb-3 d-none" id="maxlengthContainer">
+                        <label for="fieldMaxlength" class="form-label">Máximo de Caracteres</label>
+                        <input type="number" class="form-control" id="fieldMaxlength" min="1">
+                        <small class="form-text text-muted">Deja en blanco para caracteres ilimitados.</small>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="fieldRequired">
+                            <label class="form-check-label" for="fieldRequired">
+                                Campo Obligatorio
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-edit" data-bs-dismiss="modal">Agregar Campo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Campo -->
+<div class="modal fade" id="editFieldModal" tabindex="-1" aria-labelledby="editFieldModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editFieldForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFieldModalLabel">Editar Campo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editFieldId">
+                    <div class="mb-3">
+                        <label for="editFieldLabel" class="form-label">* Etiqueta (Label)</label>
+                        <input type="text" class="form-control" id="editFieldLabel" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFieldPlaceholder" class="form-label">Placeholder</label>
+                        <input type="text" class="form-control" id="editFieldPlaceholder" required>
+                    </div>
+                    <!--with this we will get all the data of the form-->
+                    <div class="mb-3">
+                        <label for="fieldType" class="form-label">* Tipo de dato relacionado con la base de datos</label>
+                        <select name="" id="typeDataOfDatabaseEdit" required class="form-select">
+                            <option value="">Selecciona un valor de la base de datos</option>
+                            {{#each dataTable}}
+                                <option column_name="{{column_name}}" data_type="{{data_type}}" is_nullable="{{is_nullable}}" class="dataTable" value="{{column_name}}">{{column_name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFieldType" class="form-label">* Tipo de Input</label>
+                        <select class="form-select" id="editFieldType" required>
+                            <option value="">Selecciona un tipo</option>
+                            <option value="text">Texto</option>
+                            <option value="email">Correo Electrónico</option>
+                            <option value="tel">Teléfono</option>
+                            <option value="number">Número</option>
+                            <option value="password">Contraseña</option>
+                            <option value="date">Fecha</option>
+                            <option value="url">URL</option>
+                            <!-- Puedes agregar más tipos según tus necesidades -->
+                        </select>
+                    </div>
+                    <div class="mb-3 d-none" id="editMaxlengthContainer">
+                        <label for="editFieldMaxlength" class="form-label">Máximo de Caracteres</label>
+                        <input type="number" class="form-control" id="editFieldMaxlength" min="1">
+                        <small class="form-text text-muted">Deja en blanco para caracteres ilimitados.</small>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="editFieldRequired">
+                            <label class="form-check-label" for="editFieldRequired">
+                                Campo Obligatorio
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-edit">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Configurar Botón de Enviar -->
+<div class="modal fade" id="configureSubmitModal" tabindex="-1" aria-labelledby="configureSubmitModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="configureSubmitForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="configureSubmitModalLabel">Configurar Botón de Enviar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="submitButtonText" class="form-label">Texto del Botón</label>
+                        <input type="text" class="form-control" id="submitButtonText" placeholder="Ej: Enviar" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="submitButtonColor" class="form-label">Color del Botón</label>
+                        <input type="color" class="form-control form-control-color" id="submitButtonColor"
+                            value="#0d6efd" title="Elegir color">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Guardar Configuración</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Notificaciones -->
+<div id="notification" class="toast align-items-center text-bg-success border-0 position-fixed top-0 end-0 m-3"
+    role="alert" aria-live="assertive" aria-atomic="true" style="z-index: 1000;">
+    <div class="d-flex">
+        <div class="toast-body" id="notificationMessage">
+            ¡Operación exitosa!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+            aria-label="Cerrar"></button>
+    </div>
+</div>
+
+<!-- JavaScript para Manejar el Editor de Formularios-->
+<script src="/js/app/editForm.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+

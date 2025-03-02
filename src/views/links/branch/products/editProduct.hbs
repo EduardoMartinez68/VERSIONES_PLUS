@@ -1,0 +1,174 @@
+<link rel="stylesheet" href="/css/manager/combo/combo.css">
+<br>
+<div class="container">
+    <div class="row">
+        <div class="card">
+            <div class="card-body">
+                {{#each comboFeactures}}
+                <form action="/fud/{{id_companies}}/{{id_branches}}/{{id}}/update-product-branch" method="POST" id="myForm" enctype="multipart/form-data">
+                {{/each}}
+
+                <!---this is for get tha data of the combo and supplies--->
+                {{#each comboFeactures}}
+                    <input type="hidden" value="{{id}}" name="id_comboFeactures" id="id_comboFeactures">
+                    <input type="hidden" value="{{id_dishes_and_combos}}" name="id_dishes_and_combos">
+                {{/each}}
+                {{#each productFacture}}
+                    <input type="hidden" value="{{id}}" name="id_productFacture" id="id_productFacture">
+                {{/each}}
+
+                {{#each comboFeactures}}
+                    <label for=""><i class="fi-icon fi-ss-box"></i> Información adicional del producto</label>
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-4">
+                            {{#if dish_img}}
+                                <img src="{{dish_img}}" alt="" class="icon-combo" id="imgEmployee">
+                            {{else}}
+                                <img src="/img/icons_first/product.webp" alt="" class="icon-combo" id="imgEmployee">
+                            {{/if}}
+                            <div class="form-group">
+                                <center>
+                                    <label for="inputImg" class="custom-file-upload">
+                                        <input type="file" name="image" accept="image/*" id="inputImg" style="display: none;">
+                                        <i class="fas fa-upload"></i> Subir imagen
+                                    </label>
+                                </center>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="row mt-3">
+                                <h4>Nombre: </h4>
+                                <input type="text" value="{{dish_name}}" name="name" class="form-control">
+                            </div>
+                            <div class="row mt-3">
+                                <h5>Codigo de Barras:</h5>
+                                <input type="text" value="{{dish_barcode}}" name="barcode" class="form-control">
+                            </div>
+                            <div class="row mt-3">
+                                <label for="">Description:</label>
+                                <textarea for="" name="description" class="form-control">{{dish_description}}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-check" name="">
+                                    {{#if this_product_is_sold_in_bulk}}
+                                        <input class="form-check-input" type="checkbox" id="this_product_is_sold_in_bulk" name="thisProductIsSoldInBulk" checked>
+                                    {{else}}
+                                        <input class="form-check-input" type="checkbox" id="this_product_is_sold_in_bulk" name="thisProductIsSoldInBulk">
+                                    {{/if}}
+                                    <label class="form-check-label" for="invalidCheck2">
+                                        Este producto se vende a granel
+                                    </label>
+                                </div>
+                            </div>
+                            <br><br>
+                            <button class="btn btn-danger" id="{{id}}" onclick="delete_product('{{id_dishes_and_combos}}','{{id_companies}}','{{id_branches}}')" type="button">🗑️ Eliminar Producto</button>
+                        </div>
+                    </div>
+                    <br><br>
+                    <!---this is the start favorites--->
+                    <div class="container-start">
+                        <div class="star-checkbox">
+                            <input class="form-check-input" type="checkbox" {{#if favorites}}checked{{/if}} id="invalidCheck"
+                                onclick="read_check_box()" name="favorites">
+                            <label for="invalidCheck"></label>
+                        </div>
+                    </div>
+                    <label for=""><i class="fi fi-sr-ballot-check"></i> Información de facturación</label>
+                    <hr>
+
+                    <!---navbar--->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home-t" role="tab" aria-controls="home"
+                                aria-selected="true"><i class="fi-icon fi-sr-usd-circle"></i> Precios de venta</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="character-tab" data-toggle="tab" href="#character-t" role="tab" aria-controls="character"
+                                aria-selected="false"><i class="fi-icon fi-sr-file-invoice-dollar"></i> Caracteristicas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile-t" role="tab" aria-controls="profile"
+                                aria-selected="false"><i class="fi-icon fi-sr-box-alt"></i> Lista de Producto</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="other-tab" data-toggle="tab" href="#other-t" role="tab" aria-controls="other"
+                                aria-selected="false"><i class="fi-icon fi-ss-settings"></i> Otro</a>
+                        </li>
+                    </ul>
+
+                    <!---container navbar--->
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="home-t" role="tabpanel" aria-labelledby="home-tab">
+                            {{>manager/combo/prices}}
+                        </div>
+                    {{/each}}
+
+
+                    <div class="tab-pane fade" id="character-t" role="tabpanel" aria-labelledby="character-tab">
+                        {{>products/informationSuppliesForm}}
+                    </div>
+
+                    <div class="tab-pane fade" id="profile-t" role="tabpanel" aria-labelledby="profile-tab">
+                        {{>manager/combo/supplies}}
+                    </div>
+
+                    {{#each comboFeactures}}
+                        <div class="tab-pane fade" id="other-t" role="tabpanel" aria-labelledby="other-tab">
+                            {{>manager/combo/other}}
+                        </div>
+                    </div>
+                    <br>
+                    <button class="btn btn-success" id="myForm" type="submit">Guardar</button>
+                </form>
+                {{/each}}
+                <br><br>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br>
+{{>updateSelects}}
+
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+<script src="/js/desktop/jquery-3.3.1.slim.min.js"></script>
+<script src="/js/desktop/popper.min.js"></script>
+<script src="/js/desktop/bootstrap.min.js"></script>
+<script src="/js/manager/addEmployee.js"></script>
+
+<script>
+    function read_check_box() {
+        const title = 'Favoritos'
+        var checkBox = document.getElementById("invalidCheck");
+        var text = checkBox.checked ? 'Este Producto fue agregado a favoritos ⭐' : 'Este Producto fue removido de favoritos 👍';
+        notificationMessage(title, text)
+    }
+</script>
+
+<script>
+    function toggleDiv(divId) {
+        var div = document.getElementById('div' + divId);
+        var otherDiv = document.getElementById('div' + (3 - divId)); // Obtiene el otro div (el que no se ha seleccionado)
+
+        if (div.classList.contains('hidden')) {
+            div.classList.remove('hidden'); // Displays the selected div
+            otherDiv.classList.add('hidden'); // Hide the other div
+        } else {
+            div.classList.add('hidden'); //Hide the selected div if it is already visible
+        }
+    }
+
+
+    async function delete_product(id_combo,id_company,id_branch){
+        //id_combo delete the combo
+        //id_comboFeactures delete combo in the facture
+        //id_productFacture delete supplies
+        
+        if(await questionMessage('Eliminar Producto  😳','¿Quieres eliminar este Producto?')){
+            const id_comboFeactures=document.getElementById('id_comboFeactures').value;
+            const id_productFacture=document.getElementById('id_productFacture').value;
+            window.location.href = `/links/${id_company}/${id_branch}/${id_combo}/${id_comboFeactures}/${id_productFacture}/delete-product-free`
+        }
+    }
+</script>

@@ -1,0 +1,24 @@
+<link rel="stylesheet" href="/css/task/tablet.css">
+<link rel="stylesheet" href="/css/CRM/crm.css">
+<!--this code is for load screen-->
+{{>loading}}
+
+<!--this is for add after the new message history-->
+<input type="hidden" value="{{user.first_name}} {{user.second_name}} {{user.last_name}}" id="user-name-id">
+<input type="hidden" value="{{photo}}" id="user-photo-id">
+
+
+<div class="row">
+    <div class="col" id="information-sales">
+        {{>manager/CRM/formCustomerEdit}}
+    </div>
+    <div class="col-4" id="history-of-sales">
+        {{>manager/CRM/historySales}}
+    </div>
+</div>
+<script src="/js/update-formulas-automatically.js"></script>
+<script src="/js/crm/loadMostHistory.js"></script>
+<script src="/js/crm/showMessages.js"></script>
+<script src="/js/crm/progress-bar.js"></script>
+<script src="/js/crm/select-color.js"></script>
+<script src="/js/crm/UI.js"></script>

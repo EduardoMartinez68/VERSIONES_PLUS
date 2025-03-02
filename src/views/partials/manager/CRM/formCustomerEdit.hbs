@@ -1,0 +1,156 @@
+{{#each customer}}
+<form action="/fud/{{id_companies}}/{{id_branches}}/{{id}}/update-prospect" method="post" id="myForm">
+<div class="container">
+    <br>
+        <button class="btn btn-edit" type="submit" style="margin-left: 10px; ">🡸</button>
+    <br><br>
+    <div class="card">
+        <div class="card-body">
+            <br>     
+            <div class="row">
+                <div class="col-9">
+                    <label><i class="fi-icon fi-ss-trophy"></i> Editar oportunidad</label>
+                    <h1 id="title-name-edit">{{name}}</h1>
+                </div>
+                <div class="col">
+                    <div class="time-progress-container">
+                        <div class="time-progress-bar" id="progressBar">0%</div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col" style="text-align: right;">
+                                <label for="" class="form-label" style="text-align: right;" id="label-priority">Prioridad</label>
+                                <div class="rating-container">
+                                    <div class="priorities">
+                                        <span class="priority" data-value="3" data-message="Prioridad Alta">★</span>
+                                        <span class="priority" data-value="2" data-message="Prioridad Media">★</span>
+                                        <span class="priority" data-value="1" data-message="Prioridad Baja">★</span>
+                                    </div>
+                                    <div class="message-priority" id="ratingMessage">Seleccione una prioridad</div>
+                                    <input type="hidden" name="priority" id="priority" value="{{priority}}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}           
+                </div>
+            </div>
+            <hr>
+            <br>
+
+            <!--this is for change in the sections-->
+            <div class="btn-group">
+                <button class="btn-select btn-active" onclick="showSection('select-1', this)" type="button">Información Personal</button>
+                <button class="btn-select" onclick="showSection('select-2', this)" type="button">Información de Venta</button>
+                <button class="btn-select" onclick="showSection('select-3', this)" type="button">Información Adicional</button>
+            </div>
+
+            <!--this is the container of the sections-->
+            {{>manager/CRM/tabsSalesStage}}
+
+            <div id="select-1" class="content-section active">
+                {{>manager/CRM/formCustomer1Edit}}
+            </div>
+            <div id="select-2" class="content-section">
+                {{>manager/CRM/formCustomer3Edit}}
+            </div>
+            <div id="select-3" class="content-section">
+                {{>manager/CRM/formCustomer2Edit}}
+            </div>
+
+            {{#each customer}}
+                <div class="div-container-right">
+                    <input type="hidden" value="{{id_companies}}" id="customer-id-company">
+                    <input type="hidden" value="{{id_branches}}" id="customer-id-branch">
+                    <input type="hidden" value="{{id}}" id="customer-id">
+                    <button type="button" class="btn btn-confirm-message" id="btn-form-loading" onclick="update_the_form_in_the_server_wallpaper()">
+                        <span class="bnt-loading-icon"></span>
+                        Guardar
+                    </button>
+                </div>
+            {{/each}}
+            
+        </div>
+    </div>
+</div>
+</form>
+{{>updateSelects}}
+
+
+
+
+<br><br><br>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="/js/CRM/starts.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#myTab a').on('click', function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        });
+    });
+</script>
+<script>
+function update_date(){
+    const inputDate = document.getElementById('closureDate');
+    const plannedClosure = inputDate.getAttribute('planned_closure');
+
+    // Convert date and time in ISO 8601 format to 'YYYY-MM-DDTHH:MM' format
+    function formatISOToDateTimeLocal(isoDateString) {
+        const date = new Date(isoDateString);
+        // Formatear a 'YYYY-MM-DDTHH:MM'
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Set the input value
+    if (inputDate) {
+        inputDate.value = formatISOToDateTimeLocal(plannedClosure);
+    }
+}
+update_date()
+</script>
+
+<script>
+
+//get the data of the form 
+const idCompany=document.getElementById('customer-id-company').value;
+const idBranch=document.getElementById('customer-id-branch').value;
+const idProspect=document.getElementById('customer-id').value;
+
+const h1Name=document.getElementById('title-name-edit');
+const customName=document.getElementById('customerName');
+//------------------------------this is for when the user would update the form-----------------------------------//
+async function update_the_form_in_the_server(){
+
+    const linkData={
+        id_company:idCompany,
+        id_branch:idBranch,
+        id_form:idProspect,
+    }
+
+    await send_to_server('/fud/update-prospect',linkData);
+    updateProgress();
+    h1Name.textContent=customName.value;
+}
+
+async function update_the_form_in_the_server_wallpaper(){
+    const form=document.getElementById('myForm');
+    const linkData={
+        id_company:idCompany,
+        id_branch:idBranch,
+        id_form:idProspect,
+    }
+
+    //await send_to_server('/fud/update-prospect',linkData);
+    await send_data_to_the_server_use_message_flask('/fud/update-prospect',form,linkData);
+    updateProgress();
+    h1Name.textContent=customName.value;
+}
+</script>

@@ -1,0 +1,92 @@
+<div class="tab-pane fade" id="navbar-branch" role="tabpanel" aria-labelledby="navbar-branch-tab">
+    <div class="card">
+        <div class="card-body">
+            <label for=""><i class="fi-icon fi-sr-store-alt"></i> Sucursal</label>
+            <hr>
+            <!--
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="createBranch">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Crear sucursal</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="editBranch">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Editar sucursal</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="deleteBranch">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Eliminar sucursal</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="viewAllBranches">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Ver todas las sucursales</label>
+            </div>
+            -->
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="addBox" valueCheck="{{add_box}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Agregar caja</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="editBox" valueCheck="{{edit_box}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Editar caja</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="deleteBox" valueCheck="{{delete_box}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Eliminar caja</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="createReservation" valueCheck="{{create_reservation}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Crear reservación</label>
+            </div>
+            <!--
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="editReservation" valueCheck="{{edit_reservation}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">Editar reservaciones</label>
+            </div>
+            -->
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="viewReservation" valueCheck="{{view_reservation}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">App de reservaciones</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" name="viewReports" valueCheck="{{view_reports}}">
+                <label class="form-check-label" for="flexSwitchCheckChecked">App Reportes</label>
+            </div>
+
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchViewFoodDepartament" name="viewFoodDepartament" valueCheck="{{view_food_departament}}">
+                <label class="form-check-label" for="flexSwitchViewFoodDepartament">App Departamento de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchAddFoodDepartament" name="addFoodDepartament" valueCheck="{{add_food_departament}}">
+                <label class="form-check-label" for="flexSwitchAddFoodDepartament">Agregar Departamento de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchEditFoodDepartament" name="editFoodDepartament" valueCheck="{{edit_food_departament}}">
+                <label class="form-check-label" for="flexSwitchEditFoodDepartament">Editar Departamento de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchDeleteFoodDepartament" name="deleteFoodDepartament" valueCheck="{{delete_food_departament}}">
+                <label class="form-check-label" for="flexSwitchDeleteFoodDepartament">Eliminar Departamento de Producto/Alimentos</label>
+            </div>
+
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchViewFoodCategory" name="viewFoodCategory" valueCheck="{{view_food_category}}">
+                <label class="form-check-label" for="flexSwitchViewFoodCategory">App Categoría de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchAddFoodCategory" name="addFoodCategory" valueCheck="{{add_food_category}}">
+                <label class="form-check-label" for="flexSwitchAddFoodCategory">Agregar Categoría de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchEditFoodCategory" name="editFoodCategory" valueCheck="{{edit_food_category}}">
+                <label class="form-check-label" for="flexSwitchEditFoodCategory">Editar Categoría de Producto/Alimentos</label>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchDeleteFoodCategory" name="deleteFoodCategory" valueCheck="{{delete_food_category}}">
+                <label class="form-check-label" for="flexSwitchDeleteFoodCategory">Eliminar Categoría de Producto/Alimentos</label>
+            </div>
+        </div>
+    </div>
+</div>

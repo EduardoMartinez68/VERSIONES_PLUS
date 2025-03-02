@@ -1,0 +1,43 @@
+  <!--this is for when the user is from the UI of <one> or <branch>-->
+  {{#each branchFree}}
+    <input type="hidden" value="{{id}}" id="id_branch">
+  {{/each}}
+  {{#each branchFree}}
+    <input type="hidden" value="{{id}}" id="id_branch">
+  {{/each}}
+
+  <table class="table table-hover" id="table-container">
+    <colgroup>
+        <col style="width: 30%;">
+        <col style="width: 30%;">
+        <col style="width: 20%;">
+        <col style="width: 10%;">
+        <col style="width: 10%;">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Nombre <i class="fi-icon fi-sr-restaurant"></i></th>
+        <th>correo electronico <i class="fi-icon fi-sr-envelope"></i></th>
+        <th>celular/telefono <i class="fi-icon fi-br-smartphone"></i></th>
+        <th>puntos<i class="fi-icon fi-sr-coins"></i></th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+    {{#each customers}}
+      <tr id="{{email}}">
+        <td>{{first_name}} {{second_name}} {{last_name}}</td>
+        <td>{{email}}</td>
+        <td>{{cell_phone}}/{{phone}}</td>
+        <td>{{points}}</td>
+        <td>
+            <button class="btn btn-edit" onclick="edit_customer('{{id}}','{{id_companies}}')"><i class="fi-department fi-sr-pencil"></i></button>
+            <button class="btn btn-danger" onclick="delete_customer('{{id}}','{{id_companies}}','{{first_name}}')"><i class="fi-department fi-sr-trash"></i></button>
+        </td>     
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+
+<script src="/js/manager/customer/buttonsTable.js"></script>

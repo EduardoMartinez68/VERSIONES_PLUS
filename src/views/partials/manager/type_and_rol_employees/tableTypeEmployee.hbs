@@ -1,0 +1,40 @@
+
+<table class="table table-hover"> <!--table-bordered-->
+    <colgroup>
+        <col style="width: 25%;">
+        <col style="width: 20%;">
+        <col style="width: 15%;">
+        <col style="width: 20%;">
+        <col style="width: 20%;">
+    </colgroup>
+    <thead>
+        {{#each branch}}
+            <tr id_branch="{{id}}">
+                <th>Name</th>
+                <th>Salary</th>
+                <th>% Commissions</th>
+                <th>% Discount for product</th>
+                <th></th>
+            </tr>
+        {{/each}}
+    </thead>
+    <tbody>
+        {{#each typeEmployees}}
+            <tr>
+                <td>{{name_role}}</td>
+                <td>{{salary}}$ {{currency}}/{{type_of_salary}}</td>
+                <td>{{commissions}}%</td>
+                <td>{{discount_for_product}}%</td>
+                <td>
+                    <button class="btn btn-edit" id="{{id}}" onclick="watch_role_employee(this.id,'{{id_companies}}')"><i class="fi-department fi-sr-eye"></i></button>            
+                </td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+
+
+
+
+<script src="/js/manager/roleEmployees/tableRoleEmployee.js"></script>

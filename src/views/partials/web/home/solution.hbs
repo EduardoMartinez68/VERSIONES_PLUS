@@ -1,0 +1,231 @@
+
+
+<div class="section not-cellphone" id="create-my-user">
+    <br><br>
+    <div class="row">
+        <div class="col-8 div-ad">
+            <label>Software para tiendas, super mercados, restaurantes, bares y cafés</label>
+            <br>
+            <h1 class="section-title-2">El mejor Punto de Venta en la Nube de México</h1>
+            <br>
+            <br>
+
+            <label class="section-title">La plataforma que necesitas. </label> <label class="section-title-3">Empieza gratis.</label>
+            <br>
+
+            <!--AD--->
+            <div class="div-dialog">
+                <label class="section-title">ED Plus resuelve </label> <label id="solution-text" class="solution-text">Las comandas</label>
+            </div>
+            <br>
+            <img src="/img/web/img-2.webp" alt="Ventas eficientes" class="img-ad">
+        </div>
+        <div class="col">
+            {{>web/home/formSingUp}}
+        </div>
+    </div>
+</div>
+
+<div class="section cellphone">
+    <br><br>
+    <div class="row">
+        <div class="col">
+            <label>Software para tiendas, super mercados, restaurantes, bares y cafés</label>
+            <br>
+            <h1 class="section-title-2">El mejor Punto de Venta en la Nube de México</h1>
+            <br>
+            {{>web/home/formSingUp}}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Array de soluciones para cambiar automáticamente
+    const solutions = [
+        'Las ventas',
+        'El robo hormiga',
+        'El stock',
+        'Las comandas',
+        'Las finanzas',
+        'Los pedidos',
+        'El inventario',
+        'El Sistema de cocina',
+        'TODO...'
+    ];
+
+    let index = 0;
+
+    // Función para cambiar la solución cada 3 segundos
+    setInterval(() => {
+        const solutionText = document.getElementById("solution-text");
+        
+        // Añadir la clase de desvanecimiento
+        solutionText.classList.remove('fade-in');
+        solutionText.classList.add('fade-out'); 
+        
+        // Espera a que termine la animación de salida antes de cambiar el texto
+        setTimeout(() => {
+            solutionText.innerText = solutions[index];
+            
+            // Volver a añadir la animación de entrada
+            solutionText.classList.remove('fade-out');
+            solutionText.classList.add('fade-in');
+            
+            index = (index + 1) % solutions.length; // Asegura que el índice vuelva a 0 después del último elemento
+        }, 500); // Tiempo de espera para que termine la animación de desvanecimiento
+    }, 2000);
+</script>
+
+<style>
+    .div-ad{
+
+    }
+
+    .section {
+        text-align: center;
+        padding: 50px;
+        background-color: #f4f4f4;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+
+    .section-title-2{
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #0066CC; /* Azul para destacar el título */
+    }
+
+    .section-title-3{
+        font-size: 1.9rem;
+        font-weight: bold;
+        color: #0066CC; /* Azul para destacar el título */
+    }
+
+    .solution-text {
+        font-size: 2rem;
+        color: #333;
+        font-weight: bold;
+        text-decoration: underline;
+        text-decoration-color: #7481FA; /* Color de subrayado */
+        transition: color 0.3s ease, text-decoration-color 0.3s ease; /* Transición suave */
+    }
+
+    .fade-out {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    .fade-in {
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    .button-container {
+        margin-top: 30px;
+    }
+
+    .btn {
+        background-color: #0066CC;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+        background-color: #005bb5;
+        transform: translateY(-2px); /* Efecto de desplazamiento */
+    }
+
+    .btn:focus {
+        outline: none;
+    }
+
+    .img-ad{
+        width: 50%;
+        height: auto;
+        position: absolute;
+        transform: translate(-550px,-65px);
+        z-index: 1;
+    }
+
+    .div-dialog{
+        background-color: white;
+        border-radius: 20px;
+        position: absolute; /* O si prefieres, relative o fixed según lo que necesites */
+        transform: translate(400px, 80px);
+        z-index: 2;
+        padding: 20px;
+    }
+
+
+    .cellphone{
+        display: none;
+    }
+
+
+    /* IPAD H*/
+    @media (max-width: 1300px) {
+        .img-ad{
+            width: 80%;
+            transform: translate(-500px,0px);
+        }
+
+        .div-dialog{
+            background-color: white;
+            border-radius: 20px;
+            position: absolute; /* O si prefieres, relative o fixed según lo que necesites */
+            transform: translate(100px, 80px);
+            z-index: 2;
+            padding: 20px;
+        }
+    }
+
+    /* IPAD v*/
+    @media (max-width: 1000px) {
+        .img-ad{
+            width: 80%;
+            transform: translate(-380px,50px);
+        }
+
+        .div-dialog{
+            background-color: white;
+            border-radius: 20px;
+            position: absolute; /* O si prefieres, relative o fixed según lo que necesites */
+            transform: translate(30px, 80px);
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .solution-text {
+            font-size: 1.5rem;
+        }
+    }
+
+    /* Estilos para dispositivos más pequeños como celulares 480px*/
+    @media (max-width: 800px) {
+        .not-cellphone{
+            display: none;
+        }
+
+        .cellphone{
+            display: block;
+        }
+
+        .img-ad{
+            width: 100%;
+            transform: translate(-0px,0px);
+        }
+
+        .div-dialog{
+            display: block;
+        }
+    }
+</style>

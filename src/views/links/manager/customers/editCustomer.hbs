@@ -1,0 +1,99 @@
+<head>
+    <link rel="stylesheet" href="/css/addUser/addUser.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-bold-straight/css/uicons-bold-straight.css'>
+
+    <link rel="stylesheet" href="/css/addUser/addUser.css">
+    <link rel="stylesheet" href="/css/report/report.css">
+    </link>
+    <link rel="stylesheet" href="/css/report/sales.css">
+    </link>
+</head>
+
+<div class="container p-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <label><i class="fi-icon fi-sr-user"></i> Edit customer</label>
+                    <hr>
+                    <!---this is for get the data of the customer to edit-->
+                    {{#each customer}}
+                    <form action="/fud/{{id_companies}}/{{id}}/editCustomer" method="POST" id="myForm">
+                    {{/each}}
+
+                    <!--this is a for that when the form be send, we can see if the user is use the UI <one> or <branch>-->
+                    {{#each branchFree}}
+                        <input type="hidden" value="{{id}}" name="id_branch">
+                    {{/each}}
+                    {{#each branch}}
+                        <input type="hidden" value="{{id}}" name="id_branch">
+                    {{/each}}
+
+
+                        <!---this is for choose the form to create-->
+                        
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home"
+                                        aria-selected="true">Información Personal</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile"
+                                        aria-selected="false">Información Adicional</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                    {{>CEO/customers/formEdit1}}
+                                </div>
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                    {{>manager/CRM/formCustomer2Edit}}
+                                </div>
+                            </div>
+                        <!--this is the button for save-->
+                        <div class="content_box">
+                            <br>                  
+                            <div class="form-group">
+                                <button class="btn btn-success btn-block" id="my-btn-from" type="submit">Guardar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+{{>updateCountry}}
+<script>
+    ///------------------this is for update the date for birthday
+    // Assuming birthday is the value you get from the database
+    const birthdayFromDB = new Date('Mon Jan 08 2024 00:00:00 GMT-0600 (Central Standard Time)');
+
+    // Format the date to the YYYY-MM-DD format
+    const year = birthdayFromDB.getFullYear();
+    const month = String(birthdayFromDB.getMonth() + 1).padStart(2, '0');
+    const day = String(birthdayFromDB.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
+
+    // Assign the formatted date to the input field
+    document.getElementById('birthday').value = formattedDate;
+</script>

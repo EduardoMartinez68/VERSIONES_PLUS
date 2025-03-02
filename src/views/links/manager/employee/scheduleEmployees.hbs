@@ -1,0 +1,42 @@
+<link rel="stylesheet" href="/css/manager/employee/employee.css">
+<style>
+    .fi-error{
+        color: red;
+    }
+    .fi-success{
+        color: rgb(99, 236, 81);
+    }
+
+    .td-icon{
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .fi-button:hover{
+        cursor: pointer;
+    }
+
+    .desactive {
+        display: none;
+    }
+</style>
+<br>
+
+<div class="container">
+    <div class="btn-group">
+        <button class="btn-select btn-active" onclick="showSection('select-1', this)" type="button">Historial de Horario</button>
+        <button class="btn-select" onclick="showSection('select-2', this)" type="button">Horarios de empleados</button>
+    </div>
+    <div id="select-1" class="content-section active">
+        {{>manager/schedule/cardSchedule}}
+    </div>
+    <div id="select-2" class="content-section">
+        {{>manager/schedule/schedulesEmployees}}
+    </div>
+</div>
+
+
+
+<script src="/js/manager/schedule/updateSchedule.js"></script>

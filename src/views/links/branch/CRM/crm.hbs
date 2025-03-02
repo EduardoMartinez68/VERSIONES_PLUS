@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="/css/task/tablet.css">
+<link rel="stylesheet" href="/css/CRM/crm.css">
+{{>loading}}
+
+<input type="hidden" value="true" id="thisIsTheCrm">
+
+<div class="btn-group">
+    <button class="btn-select" onclick="showSection('select-1', this)" type="button">Oportunidades</button>
+    <button class="btn-select btn-active" onclick="showSection('select-2', this)" type="button">Calendario de esta
+        semana</button>
+</div>
+<div id="select-1" class="content-section">
+    {{>manager/CRM/table}}
+</div>
+<div id="select-2" class="content-section active">
+    {{>manager/CRM/appointment}}
+    <br>
+</div>
+
+<script src="/js/update-formulas-automatically.js"></script>
+<script src="/js/crm/table.js"></script>
+<script src="/js/crm/UI.js"></script>
+<script src="/js/crm/showMessages.js"></script>

@@ -1,0 +1,171 @@
+<style>
+    h2 {
+        color: #075DA8;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #075DA8;
+        color: white;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    input[readonly],
+    input[type="checkbox"] {
+        background-color: #f1f1f1;
+    }
+
+    .button-form {
+        background-color: #075DA8;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .button-form:hover {
+        background-color: #064b8b;
+    }
+
+    .controls {
+        text-align: left;
+        margin-top: 20px;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+    }
+
+    .delete-btn:hover {
+        background-color: #d8342b;
+    }
+
+    .checkbox-center {
+        text-align: center;
+    }
+
+    table input[type="checkbox"] {
+        margin: 0 auto;
+        display: block;
+        transform: scale(1.2);
+    }
+
+    .total-row {
+        font-weight: bold;
+        background-color: #e0e0e0;
+    }
+
+    .total-label {
+        text-align: right;
+    }
+</style>
+<link rel="stylesheet" href="/css/CRM/crm.css">
+<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-straight/css/uicons-bold-straight.css'>
+
+
+<!---this data is for save the information that after add to the PDF-->
+{{#each branchFree}}
+    <input type="hidden" value="{{name_branch}}" id="name-branch-pdf">
+    <input type="hidden" value="{{email_branch}}" id="email-branch-pdf">
+{{/each}}
+
+{{#each dataCompany}}
+    {{#if path_logo}}
+        <img src="{{path_logo}}" alt="" id="icon-pdf" style="display: none;">
+    {{else}}
+        <img src="http://localhost:4000/img/your_logo.png" alt="" id="icon-pdf" style="display: none;">
+    {{/if}}
+{{/each}}
+<!----->
+
+
+
+<br>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col">
+            <button class="button-form">💾 Guardar</button>
+            <button class="button-form">📧 Enviar Correo electronico</button>
+            <button class="button-form" id="create-pdf">🖨️ Imprimir</button>
+
+            <button class="button-form delete-btn">🗑️ Eliminar</button>
+        </div>
+    </div>
+    <br>
+    <div class="card">
+        <div class="card-body">
+            <br>
+            <h2 class="text-center mb-4">Formulario de Cotización</h2>
+            <hr>
+            {{>manager/CRM/tabsSalesStage}}
+
+
+            
+            {{#each dataProspect}}
+                <a href="/links/{{id_companies}}/{{id_branches}}/{{id}}/edit-prospects" target="_blank">{{email}} <i class="fi-icon fi-bs-arrow-up-right-from-square"></i></a>
+                {{>manager/CRM/invoice/form}}
+                <br>
+                <div class="btn-group">
+                    <button class="btn-select btn-active" onclick="showSection('select-1', this)" type="button">Líneas del pedido</button>
+                    <button class="btn-select" onclick="showSection('select-2', this)" type="button">Productos opcionales</button>
+                    <button class="btn-select" onclick="showSection('select-3', this)" type="button">Otra información</button>
+                </div>
+            {{/each}}
+            
+                <div id="select-1" class="content-section active">
+                    {{>manager/CRM/invoice/products}}
+                    {{>CRM/invoice/popSelect}}
+                </div>
+
+            {{#each dataProspect}}
+                <div id="select-2" class="content-section">
+                    
+                    <br>
+                </div>
+                <div id="select-3" class="content-section">
+                    
+                </div>
+                <br>
+                <hr>
+                {{>manager/CRM/invoice/termitions_and_conditionals}}
+            {{/each}}
+            <br><br>
+        </div>
+    </div>
+</div>
+<br><br>
+
+
+
+<!--this is for create a PDF--->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="/js/crm/createPdfInvoice.js"></script>

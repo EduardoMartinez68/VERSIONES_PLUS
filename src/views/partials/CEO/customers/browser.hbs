@@ -1,0 +1,24 @@
+<div class="container">
+    <label>Buscar un Cliente</label>
+    <div class="row">
+        <div class="col-5">
+            <input type="text" class="form-control" placeholder="Buscar por email..." id="search">
+        </div>
+        {{#each company}}
+            <div class="col">
+                <button class="btn btn-confirm-message" onclick="nextWeb('{{id}}/add-customer')">+</button>
+            </div>
+        {{/each}}
+        {{#each branch}}
+            <div class="col">
+                <button class="btn btn-confirm-message" onclick="nextWeb('{{id_companies}}/{{id}}/add-customer')">Agregar cliente +</button>
+            </div>
+        {{/each}}
+        {{#each branchFree}}
+            <div class="col">
+                <button class="btn btn-confirm-message" onclick="nextWeb('{{id_companies}}/{{id}}/add-customer')">Agregar cliente +</button>
+            </div>
+        {{/each}}
+    </div>
+</div>
+<br><br>

@@ -1,0 +1,144 @@
+
+    <style>
+        .tag-container {
+            
+            padding: 20px 30px;
+            border-radius: 10px;
+            
+            width: 100%;
+        }
+
+        .tag-container h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #333;
+        }
+
+        .tag-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tag-form input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .tag-form input[type="text"]:focus {
+            border-color: var(--color-company);
+            outline: none;
+        }
+
+        .tag-form button {
+            padding: 10px 15px;
+            background-color: var(--color-company);;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .tag-form button:hover {
+            background-color: var(--color-hover);
+            transform: translateY(-2px);
+        }
+
+        .tags-display {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            background-color: #e0f7fa;
+            color: var(--color-company);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tag .remove-tag {
+            margin-left: 8px;
+            background: none;
+            border: none;
+            color: var(--color-company);
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .tag .remove-tag:hover {
+            color: var(--color-hover);
+        }
+    </style>
+
+    <div class="tag-container">
+        <div class="row">
+            <div class="col-4">
+                <form class="tag-form" id="tagForm">
+                    <input type="text" id="tagInput" placeholder="Escribe una palabra y presiona Enter">
+                    <button type="submit">Agregar Etiqueta</button>
+                </form>
+            </div>
+            <div class="col">
+                <div class="tags-display" id="tagsDisplay">
+                    <!-- Las etiquetas se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagForm = document.getElementById('tagForm');
+            const tagInput = document.getElementById('tagInput');
+            const tagsDisplay = document.getElementById('tagsDisplay');
+
+            tagForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const tagText = tagInput.value.trim();
+                if (tagText !== '') {
+                    crearEtiqueta(tagText);
+                    tagInput.value = '';
+                }
+            });
+
+            function crearEtiqueta(text) {
+                const tag = document.createElement('div');
+                tag.classList.add('tag');
+                tag.textContent = text;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-tag');
+                removeBtn.innerHTML = '&times;';
+                removeBtn.addEventListener('click', () => {
+                    tagsDisplay.removeChild(tag);
+                });
+
+                tag.appendChild(removeBtn);
+                tagsDisplay.appendChild(tag);
+            }
+
+            // Permitir agregar etiquetas presionando Enter en el input
+            tagInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const tagText = tagInput.value.trim();
+                    if (tagText !== '') {
+                        crearEtiqueta(tagText);
+                        tagInput.value = '';
+                    }
+                }
+            });
+        });
+    </script>
