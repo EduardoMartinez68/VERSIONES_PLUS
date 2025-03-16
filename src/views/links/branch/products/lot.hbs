@@ -1,0 +1,708 @@
+<!--this is the table of the data of the providers-->
+<br><br>
+<div class="container">
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <label for="">Busca un lote</label>
+            <div class="row">
+                <div class="col-sm-11">
+                    <input type="text" class="form-control" placeholder="Buscar..." id="search">
+                </div>
+            </div>
+        </div>
+        <br>
+        <table width="100%" border="1" class="table-information" id="myTable">
+            <thead>
+                <tr>
+                    <th><label>Lote</label></th>
+                    <th><label>F. de creación</label></th>
+                    <th><label>F. de caducidad</label></th>
+                    <th><label>Existencia</label></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each lots}}
+                    <tr id="{{name}}">
+                        <td><label><strong>{{number_lote}}</strong></label></td>
+                        <td date_of_manufacture="{{date_of_manufacture}}"><label>{{date_of_manufacture}}</label></th>
+                        <td expiration_date="{{expiration_date}}"><label>{{expiration_date}}</label></td>
+                        <td><label>{{current_existence}}</label></td>
+                        <td>
+                            <button onclick="editLot('{{id}}',this)"  type="button"
+                                class="btn btn-edit"><i class="fi-department fi-sr-pencil"></i></button>
+                            <button onclick="deleteLot('{{id}}',this)" type="button"
+                                class="btn btn-danger"><i class="fi-department fi-sr-trash"></i></button>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        <!---we will create the message of the table-->
+        {{#if lots}}
+            <center><label for="" id="text-info-table"></label></center>
+        {{else}}
+            <center><label for="" id="text-info-table">No se encontraron registros.</label></center>
+        {{/if}}
+    </div>
+</div>
+
+</div>
+
+<!---MESSAGE POP FOR ADD A NEW LOT-->
+
+    <style>
+        /* Fondo de pantalla para el popup */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 999;
+        }
+
+        /* Estilos del popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            width: 40%;
+            max-width: 490px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .popup.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .popup h2 {
+            color: #075DA8;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .popup label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Contenedor de cantidad */
+        .quantity-container {
+ 
+        }
+
+        .quantity-btn {
+            background: #075DA8;
+            color: white;
+            border: none;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .quantity-btn:hover {
+            background: #06498A;
+        }
+
+        #cantidad {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Botón Guardar */
+        .pop-save {
+            width: 100%;
+            background: #075DA8;
+            color: white;
+            border: none;
+            padding: 12px;
+            margin-top: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .pop-save:hover {
+            background: #06498A;
+        }
+
+        /* Botón de abrir formulario */
+        .open-btn {
+            background: #075DA8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 8px;
+            display: block;
+            margin: 50px auto;
+            transition: background 0.3s ease;
+        }
+
+        .open-btn:hover {
+            background: #06498A;
+        }
+
+        .number-input{
+            text-align: center;
+            font-size: 6rem;
+        }
+
+        /* Responsividad */
+        @media (max-width: 600px) {
+            .popup {
+                width: 90%;
+            }
+        }
+    </style>
+
+    <div class="overlay" id="overlay" onclick="closePopup()"></div>
+    <div class="popup" id="popup">
+        <h2>Registrar Lote</h2>
+
+        <label for="lote">Lote *</label>
+        <input type="text" id="lot">
+
+        <div class="row">
+            <div class="col">
+                <label for="fecha_creacion">Fecha de Creación *</label>
+                <input type="date" id="creation_date">
+            </div>
+            <div class="col">
+                <label for="fecha_caducidad">Fecha de Caducidad *</label>
+                <input type="date" id="expiration_date">
+            </div>
+        </div>
+
+        <label for="cantidad">Cantidad* </label>
+        <div class="row">
+            <div class="col">
+                <button class="quantity-btn" onclick="changeQuantity(-1)" type="button">-</button>
+            </div>
+            <div class="col">
+                <input type="number" id="amount" value="0" min="0" class="number-input">
+            </div>
+            <div class="col">
+                <button class="quantity-btn" onclick="changeQuantity(1)" type="button">+</button>
+            </div>
+        </div>
+        
+
+        <button class="pop-save" onclick="saveForm()" type="button">Crear</button>
+    </div>
+
+<!---MESSAGE POP FOR EDIT A NEW LOT-->
+    <div class="overlay" id="overlay-edit-lot" onclick="closePopup()"></div>
+    <div class="popup" id="popup-edit-lot">
+        <h2>Editar Lote</h2>
+
+        <label for="lote">Lote *</label>
+        <input type="text" id="lot-edit">
+
+        <div class="row">
+            <div class="col">
+                <label for="fecha_creacion">Fecha de Creación *</label>
+                <input type="date" id="creation_date-edit">
+            </div>
+            <div class="col">
+                <label for="fecha_caducidad">Fecha de Caducidad *</label>
+                <input type="date" id="expiration_date-edit">
+            </div>
+        </div>
+
+        <label for="cantidad">Cantidad* </label>
+        <div class="row">
+            <div class="col">
+                <button class="quantity-btn" onclick="changeQuantityEdit(-1)" type="button">-</button>
+            </div>
+            <div class="col">
+                <input type="number" id="amount-edit" value="0" min="0" class="number-input">
+            </div>
+            <div class="col">
+                <button class="quantity-btn" onclick="changeQuantityEdit(1)" type="button">+</button>
+            </div>
+        </div>
+        
+
+        <button class="pop-save" onclick="update_lot()" type="button">Actualizar</button>
+    </div>
+
+
+<script>
+    function openPopup() {
+        document.getElementById('popup').classList.add('show');
+        document.getElementById('popup').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closePopup() {
+        //her we will hidden the pop for add
+        document.getElementById('popup').classList.remove('show');
+        setTimeout(() => {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }, 200);
+
+        //her we will hidden the pop for edit
+        document.getElementById('popup-edit-lot').classList.remove('show');
+        setTimeout(() => {
+            document.getElementById('popup-edit-lot').style.display = 'none';
+            document.getElementById('overlay-edit-lot').style.display = 'none';
+        }, 200);
+    }
+
+    function changeQuantity(amount) {
+        let input = document.getElementById('amount');
+        let newValue = parseInt(input.value) + amount;
+        if (newValue >= 0) {
+            input.value = newValue;
+        }
+    }
+
+    function changeQuantityEdit(amount) {
+        let input = document.getElementById('amount-edit');
+        let newValue = parseInt(input.value) + amount;
+        if (newValue >= 0) {
+            input.value = newValue;
+        }
+    }
+
+    async function saveForm() {
+    //get all the data of the form
+    const lot=document.getElementById('lot');
+    const creation_date=document.getElementById('creation_date');
+    const expiration_date=document.getElementById('expiration_date');
+    const amount=document.getElementById('amount');
+
+    // we will create the list of element
+    const fields = [lot, creation_date, expiration_date, amount];
+    let allFilled = true;
+
+    // we will read all the list and we will remake the input
+    fields.forEach(field => {
+        if (!field.value.trim()) {
+            field.style.border = "2px solid red";
+            allFilled = false;
+        } else {
+            field.style.border = "1px solid #ccc"; // reset the color
+        }
+    });
+
+    // if all the inputs have data close the pop and add the information to the table
+    if (allFilled) {
+        //now, her we will see if date is success
+        const creationDateValue = new Date(creation_date.value);
+        const expirationDateValue = new Date(expiration_date.value);
+
+        if (creationDateValue >= expirationDateValue) {
+            errorMessage('👁️ ERROR','La fecha de creación debe ser menor a la fecha de caducidad.');
+            creation_date.style.border = "2px solid red";
+            expiration_date.style.border = "2px solid red";
+            return;
+        }
+
+        await add_lot_to_my_table(fields,lot, creation_date, expiration_date, amount);
+    }else{
+        errorMessage('👁️ ERROR','Debes llenar todos los datos del formulario.');
+        return;
+    }
+}
+
+    async function add_lot_to_my_table(fields,lot, creation_date, expiration_date, amount){
+        //her we will know if we can send this information to the server
+        const answer=await send_information_to_the_server(lot.value, creation_date.value, expiration_date.value, amount.value);
+
+        //know if could add the lot to the database 
+        if(answer.answer){
+            //get the table
+            let table = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+
+            // create a new row
+            let newRow = table.insertRow();
+
+            // add cell with the value
+            newRow.innerHTML = `
+                <td><label><strong>${lot.value}</strong></label></td>
+                <td><label date_of_manufacture="${answer.current_existence}">${formatDateForm(creation_date.value)}</label></td>
+                <td><label expiration_date="${answer.date_of_manufacture}">${formatDateForm(expiration_date.value)}</label></td>
+                <td><label>${amount.value}</label></td>
+                <td>
+                    <button onclick="editLot('${answer.id}',this)"  type="button"
+                        class="btn btn-edit"><i class="fi-department fi-sr-pencil"></i></button>
+                    <button onclick="deleteLot('${answer.id}',this)" type="button"
+                        class="btn btn-danger"><i class="fi-department fi-sr-trash"></i></button>
+                </td>
+            `;
+
+            // clear the inputs after of add the data to the table
+            fields.forEach(field => field.value = '');
+
+            //if exist text of information we will clean the text
+            const textInfo=document.getElementById('text-info-table')
+            if(textInfo){
+                textInfo.textContent='';
+            }
+
+            closePopup();
+            confirmationMessage('Lote agregado 😁',answer.message)
+        }else{
+            //show a message of error in the server
+            errorMessage('👁️ ERROR',answer.message);
+        }
+
+
+        update_inventory();
+    }
+
+    async function send_information_to_the_server(lot, creation_date, expiration_date, amount) {
+        try {
+            const id_productFacture = document.getElementById('id_comboFeactures').value; // Agregar .value
+            const idDishAndComboFeatures=id_productFacture;
+
+            const number_lote=lot;
+            const initial_existence=amount;
+            const current_existence=amount;
+            const date_of_manufacture=creation_date;
+
+            const response = await fetch(`/links/${id_productFacture}/add-lot`, { // Se eliminó el paréntesis incorrecto aquí
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ number_lote:number_lote, initial_existence:initial_existence, current_existence:current_existence, date_of_manufacture:date_of_manufacture, expiration_date:expiration_date, idDishAndComboFeatures:idDishAndComboFeatures })
+            });
+
+            if (!response.ok) {
+                return { answer: false, message: `Error en la solicitud: ${response.status} ${response.statusText}` };
+            }
+
+            const data = await response.json();
+
+            if (data.message) {
+                return { answer: true, message: `El lote fue agregado con éxito` ,id:data.id, date_of_manufacture:data.date_of_manufacture, expiration_date:data.expiration_date};
+            } else {
+                return { answer: false, message: "No se recibió mensaje del servidor." };
+            }
+
+        } catch (error) {
+            return { answer: false, message: `Error al guardar el lote: ${error.message}` }; // Mostrar error real
+        }
+    }
+
+    //----------------------------------
+    async function deleteLot(idLot,button){
+        let row = button.closest("tr"); // Obtiene la fila más cercana
+        let currentExistenceCell = row.querySelector("td:nth-child(4) label"); // Obtiene la celda de existencia actual
+
+        if (!currentExistenceCell) {
+            warningMessage('Ups! 😅',"No se pudo verificar la existencia actual.");
+            return;
+        }
+
+        let currentExistence = parseInt(currentExistenceCell.textContent.trim(), 10) || 0; // Convierte el valor a número
+
+        if (currentExistence > 0) {
+            warningMessage('Ups! 😅',"No puedes eliminar este lote porque aún tiene existencias.");
+            return;
+        }
+
+        if(await questionMessage('🗑️ Eliminar el Lote','¿Deseas eliminar este lote?')){
+            const answer=await send_information_to_the_server_for_delete_the_lot(idLot);
+
+            if(answer.message){
+                let row = button.closest("tr"); // get the row most close
+                let table = row.closest("table"); // get tha table most close
+
+                if (row) {
+                    row.remove(); // delete the row
+                }
+
+                //now we will see if the table is empty
+                let tbody = table.querySelector("tbody");
+                if (tbody && tbody.rows.length === 0) {
+                    //if the table is empty, show a message of that not exist tha data in the table
+                    const textInfo=document.getElementById('text-info-table')
+                    if(textInfo){
+                        textInfo.textContent='No se encontraron registros.';
+                    }
+                }
+
+                confirmationMessage('El fue eliminado 😁',answer.message)
+            }
+        }
+
+
+        update_inventory();
+    }
+
+    async function send_information_to_the_server_for_delete_the_lot(idLot) {
+        try {
+            const response = await fetch(`/links/${idLot}/delete-lot`, { // Se eliminó el paréntesis incorrecto aquí
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idLot: idLot})
+            });
+
+            if (!response.ok) {
+                return { answer: false, message: `Error en la solicitud: ${response.status} ${response.statusText}` };
+            }
+
+            const data = await response.json();
+
+            if (data.message) {
+                return { answer: true, message: `El lote fue eliminado con éxito.` };
+            } else {
+                return { answer: false, message: "No se recibió mensaje del servidor." };
+            }
+
+        } catch (error) {
+            return { answer: false, message: `Error al guardar el lote: ${error.message}` }; // Mostrar error real
+        }
+    }
+
+    
+    //----------------------------------
+    let cellEditLot;
+    let idLotForEdit;
+
+    async function editLot(idLot,button){
+        idLotForEdit=idLot;
+        openPopupEdit(button);
+    }
+
+    function openPopupEdit(button) {
+        let row = button.closest("tr"); // get the row most close
+        let cells = row.getElementsByTagName("td");
+        cellEditLot=cells; //her save the cell for update after
+
+        //get all the value of the lot
+        let numberLote = cells[0].textContent.trim();
+        let dateOfManufacture = cells[1].getAttribute("date_of_manufacture");
+        let expirationDate = cells[2].getAttribute("expiration_date");
+        let currentExistence = cells[3].textContent.trim();
+
+        //her we will update the inputs of the pop
+        document.getElementById('lot-edit').value=numberLote;
+        document.getElementById('creation_date-edit').value=create_date_of_the_lot(new Date(dateOfManufacture));
+        document.getElementById('expiration_date-edit').value=create_date_of_the_lot(new Date(expirationDate));
+        document.getElementById('amount-edit').value=currentExistence;
+
+        //open the popup
+        document.getElementById('popup-edit-lot').classList.add('show');
+        document.getElementById('popup-edit-lot').style.display = 'block';
+        document.getElementById('overlay-edit-lot').style.display = 'block';
+    }
+
+    function create_date_of_the_lot(dateObject){
+        // Obtener el año, mes y día en formato YYYY-MM-DD
+        let year = dateObject.getFullYear();
+        let month = String(dateObject.getMonth() + 1).padStart(2, '0'); // Se suma 1 porque los meses van de 0-11
+        let day = String(dateObject.getDate()).padStart(2, '0');
+
+        // Formatear la fecha en el formato aceptado por <input type="date">
+        let formattedDate = `${year}-${month}-${day}`;
+        return formattedDate;
+    }
+    
+    async function update_lot(){
+        //her get the data that the user would like update
+        const lot=document.getElementById('lot-edit');
+        const creation_date=document.getElementById('creation_date-edit');
+        const expiration_date=document.getElementById('expiration_date-edit');
+        const amount=document.getElementById('amount-edit');
+
+        // we will create the list of element
+        const fields = [lot, creation_date, expiration_date, amount];
+        let allFilled = true;
+
+        // we will read all the list and we will remake the input
+        fields.forEach(field => {
+            if (!field.value.trim()) {
+                field.style.border = "2px solid red";
+                allFilled = false;
+            } else {
+                field.style.border = "1px solid #ccc"; // reset the color
+            }
+        });
+
+        // if all the inputs have data close the pop and add the information to the table
+        if (allFilled) {
+            //now, her we will see if date is success
+            const creationDateValue = new Date(creation_date.value);
+            const expirationDateValue = new Date(expiration_date.value);
+
+            if (creationDateValue >= expirationDateValue) {
+                errorMessage('👁️ ERROR','La fecha de creación debe ser menor a la fecha de caducidad.');
+                creation_date.style.border = "2px solid red";
+                expiration_date.style.border = "2px solid red";
+                return;
+            }
+
+            await update_lot_in_the_table(fields,lot, creation_date, expiration_date, amount);
+        }else{
+            errorMessage('👁️ ERROR','Debes llenar todos los datos del formulario.');
+            return;
+        } 
+
+        update_inventory();
+    }
+
+    async function update_lot_in_the_table(fields,lot, creation_date, expiration_date, amount){
+        
+        //her we will know if we can send this information to the server
+        const answer=await send_information_to_the_server_for_edit_the_lot(lot.value, creation_date.value, expiration_date.value, amount.value);
+
+        //know if could add the lot to the database 
+        if(answer.answer){
+            // edit all the cell with the value
+            cellEditLot[0].textContent=lot.value;
+            cellEditLot[1].setAttribute("date_of_manufacture",creation_date.value);
+            cellEditLot[2].setAttribute("expiration_date",expiration_date.value);
+            cellEditLot[1].textContent=formatDateForm(creation_date.value);
+            cellEditLot[2].textContent=formatDateForm(expiration_date.value);
+            cellEditLot[3].textContent=amount.value;
+
+            // clear the inputs after of add the data to the table
+            fields.forEach(field => field.value = '');
+
+            //if exist text of information we will clean the text
+            const textInfo=document.getElementById('text-info-table')
+            if(textInfo){
+                textInfo.textContent='';
+            }
+        
+            closePopup();
+            confirmationMessage('Lote actualizado 😁',answer.message)
+        }else{
+            //show a message of error in the server
+            errorMessage('👁️ ERROR',answer.message);
+        }
+    }
+
+    async function send_information_to_the_server_for_edit_the_lot(lot, creation_date, expiration_date, amount) {
+        try {
+            const id_productFacture = document.getElementById('id_comboFeactures').value; // Agregar .value
+            const idDishAndComboFeatures=id_productFacture;
+
+            const number_lote=lot;
+            const initial_existence=amount;
+            const current_existence=amount;
+            const date_of_manufacture=creation_date;
+
+            const response = await fetch(`/links/${id_productFacture}/${idLotForEdit}/edit-lot`, { // Se eliminó el paréntesis incorrecto aquí
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ number_lote:number_lote, initial_existence:initial_existence, current_existence:current_existence, date_of_manufacture:date_of_manufacture, expiration_date:expiration_date, idDishAndComboFeatures:idDishAndComboFeatures })
+            });
+
+            if (!response.ok) {
+                return { answer: false, message: `Error en la solicitud: ${response.status} ${response.statusText}` };
+            }
+
+            const data = await response.json();
+
+            if (data.message) {
+                return { answer: true, message: `El lote fue actualizado con éxito.` };
+            } else {
+                return { answer: false, message: "No se recibió mensaje del servidor." };
+            }
+
+        } catch (error) {
+            return { answer: false, message: `Error al guardar el lote: ${error.message}` }; // Mostrar error real
+        }
+    }
+
+    
+    //--------------------------------------------------------
+    // Función para formatear la fecha
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('es-ES', options);
+    }
+
+    function formatDateForm(dateString) {
+        const date = new Date(dateString);
+        date.setDate(date.getDate() + 1); // Aumenta un día
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('es-ES', options);
+    }
+
+    //this is for change the date of the date
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('#myTable tbody tr');
+        
+        rows.forEach(row => {
+            // Obtener las celdas que contienen las fechas
+            const expirationDateCell = row.cells[1]; // Columna de fecha de caducidad
+            const existenceDateCell = row.cells[2]; // Columna de existencia
+
+            // Aplicar el formato a las fechas
+            if (expirationDateCell) {
+                expirationDateCell.textContent = formatDate(expirationDateCell.textContent);
+            }
+            if (existenceDateCell) {
+                existenceDateCell.textContent = formatDate(existenceDateCell.textContent);
+            }
+        });
+    });
+
+    //this is for the search a oriduct with the input search
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search');
+        const table = document.getElementById('myTable');
+        const rows = table.getElementsByTagName('tr');
+
+        searchInput.addEventListener('input', function() {
+            const searchValue = searchInput.value.toLowerCase(); // Obtén el valor de búsqueda y lo pasamos a minúsculas
+            for (let i = 1; i < rows.length; i++) { // Comenzamos en 1 para omitir la fila del encabezado
+                const cells = rows[i].getElementsByTagName('td');
+                const loteName = cells[0].textContent.toLowerCase(); // Asumiendo que el nombre del lote está en la primera columna
+                
+                // Compara si el valor de búsqueda está incluido en el nombre del lote
+                if (loteName.includes(searchValue)) {
+                    rows[i].style.display = ''; // Mostrar la fila si coincide
+                } else {
+                    rows[i].style.display = 'none'; // Ocultar la fila si no coincide
+                }
+            }
+        });
+    });
+
+</script>

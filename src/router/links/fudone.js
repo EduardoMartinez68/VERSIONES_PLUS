@@ -94,6 +94,8 @@ const {
     this_user_have_this_permission
 } = require('../../services/permission');
 
+const database = require('../../database');
+
 const rolFree=0;
 
 
@@ -220,8 +222,6 @@ router.get('/:id_company/:id_branch/add-products-free', isLoggedIn, async (req, 
     res.render('links/free/products/addFormProducts', { branchFree, supplies,departments,category});
 });
 
-
-
 router.get('/:id_company/:id_branch/upload-products', isLoggedIn, async (req, res) => {
     const {id_company, id_branch } = req.params;
 
@@ -283,23 +283,211 @@ router.get('/:id_company/:id_branch/:id_combo_features/edit-products-free', isLo
         return res.redirect(`/links/${id_company}/${id_branch}/permission_denied`);
     }
 
+    //her we will create the tabla lot if not exist in the database
+    await create_table_lot();
+
+    //get all the data of the combo
     const comboFeactures = await get_data_combo_factures(id_combo_features); //this is the data of the combo
 
     //this is for get the supplies of the combo
     const suppliesCombo = await get_all_price_supplies_branch(comboFeactures[0].id_dishes_and_combos, id_branch)
+
+    //her, we will get all the lot that the product have in the database
+    const lots=await get_lots_by_dish_and_combo_features(id_combo_features);
 
     //we will see if the user have a suscription free
     if(req.user.rol_user==rolFree){
         const branchFree = await get_data_branch(id_branch); //get data of rol free
         //get the data of the product that is in the combo. This is the information of the product 
         const productFacture=await get_supplies_or_features_with_id_products_and_supplies(suppliesCombo[0].id_products_and_supplies);
-        res.render('links/branch/products/editProduct', { comboFeactures, suppliesCombo , branchFree, productFacture});      
+        res.render('links/branch/products/editProduct', { comboFeactures, suppliesCombo , branchFree, productFacture,lots});      
     }else{
         const branch = await get_data_branch(id_branch);
-        res.render('links/branch/products/editProduct', { comboFeactures, suppliesCombo, branch});
+        res.render('links/branch/products/editProduct', { comboFeactures, suppliesCombo, branch,lots});
     }
-    
 })
+
+router.post('/:id_lot/edit-lot-quantity', isLoggedIn, async (req, res) => {
+    const { id_lot } = req.params;
+    const { newQuantity } = req.body;
+
+    const queryText = `
+        UPDATE "Inventory".lots 
+        SET current_existence = $1
+        WHERE id = $2
+    `;
+
+    try {
+        const result = await database.query(queryText, [
+            newQuantity,
+            id_lot
+        ]);
+
+        res.status(201).json({ message: "Lote actualizado con éxito", lot: result.rows[0] });
+    } catch (error) {
+        console.error("Error al actualizar el lote:", error);
+        res.status(500).json({ error: "Error al actualizar el lote" });
+    }
+})
+
+async function create_table_lot(){
+    const queryText = `
+        CREATE TABLE IF NOT EXISTS "Inventory".lots (
+            id bigserial PRIMARY KEY,
+            number_lote Text,
+            initial_existence double precision,
+            current_existence double precision NOT NULL,
+            date_of_manufacture date NOT NULL,
+            expiration_date date NOT NULL,
+            id_dish_and_combo_features bigint,
+            id_branches bigint,
+            id_companies bigint,
+            CONSTRAINT key_number_lote UNIQUE (id),
+            CONSTRAINT dish_and_combo_features_fk FOREIGN KEY (id_dish_and_combo_features)
+                REFERENCES "Inventory".dish_and_combo_features (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE,
+            CONSTRAINT branches_fk FOREIGN KEY (id_branches)
+                REFERENCES "Company".branches (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE,
+            CONSTRAINT companies_fk FOREIGN KEY (id_companies)
+                REFERENCES "User".companies (id) MATCH FULL
+                ON DELETE SET NULL ON UPDATE CASCADE
+        );
+    `;
+    
+    try {
+        await database.query(queryText);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+async function get_lots_by_dish_and_combo_features(idDishAndComboFeatures) {
+    const queryText = `
+        SELECT * FROM "Inventory".lots 
+        WHERE id_dish_and_combo_features = $1
+        ORDER BY expiration_date ASC;
+    `;
+    
+    try {
+        const result = await database.query(queryText, [idDishAndComboFeatures]);
+        return result.rows;
+    } catch (error) {
+        console.error("Error al obtener los datos de la tabla 'lots':", error);
+        return [];
+    }
+}
+
+router.get('/:id_company/:id_branch/lot', isLoggedIn, async (req, res) => {
+    
+    const { id_combo_features, id_company, id_branch } = req.params;
+
+    res.render('links/branch/products/lot', {});
+})
+
+router.post('/:id_combo_features/add-lot', isLoggedIn, async (req, res) => {
+    const { id_combo_features} = req.params;
+    const { number_lote, initial_existence, current_existence, date_of_manufacture, expiration_date} = req.body;
+    const id_company=req.user.id_company;
+    const id_branch=req.user.id_branch;
+
+    if (!number_lote || !initial_existence || !current_existence || !date_of_manufacture || !expiration_date) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
+
+    const queryText = `
+        INSERT INTO "Inventory".lots 
+        (number_lote, initial_existence, current_existence, date_of_manufacture, expiration_date, id_dish_and_combo_features, id_branches, id_companies) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+        RETURNING id, number_lote, initial_existence, current_existence, date_of_manufacture, expiration_date;
+    `;
+
+    try {
+        const result = await database.query(queryText, [
+            number_lote,
+            initial_existence,
+            current_existence,
+            date_of_manufacture,
+            expiration_date,
+            id_combo_features,
+            id_branch,
+            id_company
+        ]);
+
+        const newLot = result.rows[0]; // Aquí obtienes el lote insertado con su ID
+
+        res.status(201).json({ 
+            message: "Lote agregado con éxito", 
+            lot: newLot, 
+            date_of_manufacture:newLot.date_of_manufacture,
+            expiration_date:newLot.expiration_date,
+            id: newLot.id 
+        });
+    } catch (error) {
+        console.error("Error al agregar el lote:", error);
+        res.status(500).json({ error: "Error al agregar el lote" });
+    }
+})
+
+router.post('/:id_combo_features/:id_lot/edit-lot', isLoggedIn, async (req, res) => {
+    const { id_combo_features, id_lot} = req.params;
+    const { number_lote, current_existence, date_of_manufacture, expiration_date} = req.body;
+
+    if (!number_lote || !current_existence || !date_of_manufacture || !expiration_date) {
+        return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    }
+
+    const queryText = `
+        UPDATE "Inventory".lots 
+        SET number_lote = $1, 
+            current_existence = $2,
+            date_of_manufacture = $3, 
+            expiration_date = $4
+        WHERE id = $5
+        RETURNING *;
+    `;
+
+    try {
+        const result = await database.query(queryText, [
+            number_lote,
+            current_existence,
+            date_of_manufacture,
+            expiration_date,
+            id_lot
+        ]);
+
+        res.status(201).json({ message: "Lote actualizado con éxito", lot: result.rows[0] });
+    } catch (error) {
+        console.error("Error al actualizar el lote:", error);
+        res.status(500).json({ error: "Error al actualizar el lote" });
+    }
+})
+
+router.post('/:id_lot/delete-lot', isLoggedIn, async (req, res) => {
+    const { id_lot } = req.params;
+
+    if (!id_lot) {
+        return res.status(400).json({ error: "El ID del lote es obligatorio" });
+    }
+
+    const queryText = `DELETE FROM "Inventory".lots WHERE id = $1;`;
+
+    try {
+        const result = await database.query(queryText, [id_lot]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Lote no encontrado" });
+        }
+
+        res.status(200).json({ message: "Lote eliminado con éxito"});
+    } catch (error) {
+        console.error("Error al eliminar el lote:", error);
+        res.status(500).json({ error: "Error al eliminar el lote" });
+    }
+});
+
+
 
 //--this is for when the user would like delete the product (supplies)
 router.get('/:id_company/:id_branch/:id_combo/:id_comboFeactures/:id_productFacture/delete-product-free', isLoggedIn, async (req, res) => {
