@@ -1881,6 +1881,8 @@ router.post('/fud/:id_company/:id_branch/:id_combo/update-product-branch', isLog
         await update_supplies_image(idSuppliesCompany,image);
     }
 
+    await update_other_information_of_combo(req,idComboCompany);
+    
     //update the combo of the company
     const thisProductIsSoldInBulk=req.body.thisProductIsSoldInBulk; //get is the product is sold in bulk
     await update_information_combo_product(name,barcode,description,thisProductIsSoldInBulk,idComboCompany);
@@ -1947,6 +1949,25 @@ async function get_data_photo(id_combo) {
         return null;
     }
 }
+
+async function update_other_information_of_combo(req,id_combo){
+    var queryText = `
+    UPDATE "Kitchen".dishes_and_combos
+    SET 
+        this_product_need_recipe=$1
+    WHERE 
+        id=$2
+    `;
+
+    const this_product_need_recipe = req.body.this_product_need_recipe === 'on' || req.body.this_product_need_recipe === 'true';
+    console.log(this_product_need_recipe)
+    console.log(id_combo)
+    var values = [this_product_need_recipe,id_combo];
+    const result = await database.query(queryText, values);
+    const data = result.rows;
+    return data;
+}
+
 
 async function update_combo_image(id_combo,image){
     var queryText = `
@@ -2606,8 +2627,6 @@ async function add_table_box_history() {
     }
 }
 
-
-
 function create_commander(id_branch, id_employee, id_customer, commanderDish, total, moneyReceived, change, comment, date) {
     const commander = {
         id_branch,
@@ -2623,6 +2642,26 @@ function create_commander(id_branch, id_employee, id_customer, commanderDish, to
     }
     return commander;
 }
+
+//this is for save the recipe of the product that need recipe
+router.post('/fud/recipe-post', isLoggedIn, async (req, res) => {
+    //get the data of the user
+    const idCompany=req.user.id_company;
+    const idEmployee=req.user.id_employee;
+    const idBranch=req.user.id_branch;
+    const information_of_recipe = req.body;
+
+    //her we will read all the recipe and we will save in the database
+    for (let recipe of information_of_recipe) {
+        try {
+            await addDatabase.add_recipe(idCompany, idBranch, idEmployee, recipe);
+            res.status(200).json({ message: true});
+        } catch (error) {
+            console.error('Error:', error);
+            res.status(500).json({ error: 'Hubo un error al procesar la solicitud' });
+        }
+    }
+})
 
 /*
 router.post('/fud/:id_customer/car-post', isLoggedIn, async (req, res) => {
@@ -2823,6 +2862,7 @@ async function get_id_employee(idUser) {
         throw error; // Lanzar el error para que sea manejado en otro lugar si es necesario
     }
 }
+
 async function watch_if_can_create_all_the_combo(combos) {
     // Iterate through all the combos
     var arrayCombo = await get_all_supplies_of_the_combos(combos)

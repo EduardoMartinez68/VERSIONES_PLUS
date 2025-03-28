@@ -1,0 +1,273 @@
+<style>
+    /* Estilos del modal */
+    .recipe-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .recipe-modal.show {
+        display: flex;
+    }
+
+    .recipe-modal-dialog {
+        width: 90%;
+        max-width: 500px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .recipe-modal-header {
+        background-color: #075DA8;
+        color: white;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .recipe-modal-header h5 {
+        margin: 0;
+    }
+
+    .recipe-btn-close {
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+
+    .recipe-modal-body {
+        padding: 20px;
+    }
+
+    /* Estilos del formulario */
+    .recipe-form-label {
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .recipe-form-control {
+        width: 100%;
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        background-color: #f0f4f8;
+        transition: border 0.3s ease-in-out;
+    }
+
+    .recipe-form-control:focus {
+        border: 2px solid #075DA8;
+        background-color: white;
+        outline: none;
+    }
+
+    .recipe-btn-primary {
+        background-color: #075DA8;
+        color: white;
+        border: none;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        width: 100%;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-top: 15px;
+    }
+
+    .recipe-btn-primary:hover {
+        background-color: #064B88;
+    }
+
+    /* Estilos del switch */
+    .recipe-form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .recipe-form-check-input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    /* Animación */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+
+<!-- Modal -->
+<div class="recipe-modal" id="recetaModalRecipe">
+    <div class="recipe-modal-dialog">
+        <div class="recipe-modal-header">
+            <h5>Formulario de Receta</h5>
+            <button class="recipe-btn-close" id="closeModalRecipe">&times;</button>
+        </div>
+        <div class="recipe-modal-body">
+            <form>
+                <div class="row">
+                    <div class="col">
+                        <label class="recipe-form-label">Folio de Receta *</label>
+                        <input type="text" class="recipe-form-control" required id="recipe-recipeId">
+                    </div>
+                    <div class="col">
+                        <label class="recipe-form-label">Cédula del Médico *</label>
+                        <input type="text" class="recipe-form-control" required id="recipe-doctorLicense">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label class="recipe-form-label">Nombre del Médico *</label>
+                        <input type="text" class="recipe-form-control" required id="recipe-doctorName">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label class="recipe-form-label">Fecha de la receta *</label>
+                        <input type="date" class="recipe-form-control" required id="recipe-prescriptionDate">
+                    </div>
+                    <div class="col">
+                        <label class="recipe-form-label">Retenida</label>
+                        <div class="recipe-form-check">
+                            <input type="checkbox" class="recipe-form-check-input" id="recipe-retenidaSwitch">
+                            <label for="retenidaSwitch">Sí</label>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col">
+                        <label class="recipe-form-label">Comentario</label>
+                        <textarea class="recipe-form-control" rows="3" id="recipe-comments"></textarea>
+                    </div>
+                </div>
+
+                <button type="button" class="recipe-btn-primary" onclick="save_recipe()">Guardar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Script para abrir y cerrar el modal -->
+<script>
+
+    const closeModalRecipe = document.getElementById("closeModalRecipe");
+    const recetaModalRecipe = document.getElementById("recetaModalRecipe");
+    let productRecipe=null; //this is for save the product that need a recipe
+    
+    function show_recipe(img, name, barcode, price, purchaseUnit, this_product_is_sold_in_bulk, id_dishes_and_combos,thisIsProductWithLot,this_product_need_a_recipe){
+        //her we will save all the data of the product that need a recipe
+        productRecipe={
+            img,
+            name,
+            barcode,
+            price,
+            purchaseUnit,
+            this_product_is_sold_in_bulk,
+            id_dishes_and_combos,
+            thisIsProductWithLot,
+            this_product_need_a_recipe
+        }
+
+
+        recetaModalRecipe.classList.add("show");
+    }
+
+    closeModalRecipe.addEventListener("click", function () {
+        recetaModalRecipe.classList.remove("show");
+        reset_recipe_form(); //clean the form
+    });
+
+    // Cerrar modal al hacer clic fuera del contenido
+    recetaModalRecipe.addEventListener("click", function (e) {
+        if (e.target === recetaModalRecipe) {
+            recetaModalRecipe.classList.remove("show");
+            reset_recipe_form(); //clean the form
+        }
+    });
+
+    let information_of_recipe=[]; //this array save all the information of the recipe
+    let information_of_recipe_for_sned_to_the_server=[]; //this array is for save all the data complete that send to the server
+
+    async function save_recipe(){
+        //we will see if exist a product 
+        if(productRecipe){
+            const recipe=create_recipe(); //her get all the data of the form
+
+            //save the data of the recipe in the array
+            information_of_recipe.push(recipe);
+
+            //hidden the message pop
+            recetaModalRecipe.classList.remove("show");
+
+            //her we will add the product in the cart
+            await addToCart(productRecipe.img, productRecipe.name, productRecipe.barcode, productRecipe.price, productRecipe.purchaseUnit, productRecipe.this_product_is_sold_in_bulk, productRecipe.id_dishes_and_combos,productRecipe.thisIsProductWithLot,false);
+            productRecipe=null;  //clean the id of the product
+            reset_recipe_form(); //clean the form
+        }
+    }
+
+    function create_recipe(){
+        //get all the data of the form 
+        let recipeId = document.getElementById("recipe-recipeId").value;
+        let doctorLicense = document.getElementById("recipe-doctorLicense").value;
+        let doctorName = document.getElementById("recipe-doctorName").value;
+        let prescriptionDate = document.getElementById("recipe-prescriptionDate").value;
+        let retained = document.getElementById("recipe-retenidaSwitch").checked;
+        let comments = document.getElementById("recipe-comments").value;
+
+        // Create recipe object
+        let newRecipe = {
+            id_dishes_and_combos:productRecipe.id_dishes_and_combos,
+            barcode:productRecipe.barcode,
+            recipeId,
+            doctorLicense,
+            doctorName,
+            prescriptionDate,
+            retained,
+            comments,
+            id_customer:null,
+            id_lot:null,
+            amount:null
+        };
+
+        return newRecipe;
+    }
+
+    function reset_recipe_form() {
+        document.getElementById("recipe-recipeId").value = "";
+        document.getElementById("recipe-doctorLicense").value = "";
+        document.getElementById("recipe-doctorName").value = "";
+        document.getElementById("recipe-prescriptionDate").value = "";
+        document.getElementById("recipe-retenidaSwitch").checked = false;
+        document.getElementById("recipe-comments").value = "";
+    }
+
+
+</script>

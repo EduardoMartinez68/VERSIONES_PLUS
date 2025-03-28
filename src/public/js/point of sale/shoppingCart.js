@@ -21,7 +21,7 @@ async function buy_my_car() {
 
         //we will see if the user can buy all the shooping cart
         if (await send_buy_to_the_server(total, moneyReceived, change, comment, id_customer, cash, credit, debit)) {
-            await update_the_lots_of_the_product_in_the_car();
+            await update_the_lots_of_the_product_in_the_car(id_customer);
 
             //we will print ticket
             printTicket(total, moneyReceived, change, comment);
@@ -48,6 +48,14 @@ async function buy_my_car() {
     } else {
         errorMessage('ERROR 👁️', 'El dinero no es suficiente para la compra');
     }
+}
+
+async function save_the_recipe_in_the_database(lotId,id_customer){
+    //her we will save the recipe in the database
+    const answerServer = await get_answer_server(information_of_recipe_for_sned_to_the_server, `/fud/recipe-post`);
+
+    selectedLots=[] //this is for remove all the lot of the product in the cart
+    information_of_recipe_for_sned_to_the_server=[] //this is for remove all the recipe in the cart
 }
 
 async function send_buy_to_the_server(total, moneyReceived, exchange, comment, id_customer, cash, credit, debit) {
@@ -77,12 +85,12 @@ async function send_buy_to_the_server(total, moneyReceived, exchange, comment, i
 }
 
 
-async function update_the_lots_of_the_product_in_the_car() {
+async function update_the_lots_of_the_product_in_the_car(id_customer) {
+    const existProductThatNeedPrescription = information_of_recipe.length > 0;
     for (let lotElement of document.querySelectorAll('.lot-item')) { // Usar 'for...of' en lugar de 'forEach'
         let lotId = lotElement.getAttribute('data-lot-id'); // ID del lote en el DOM
         
         let foundLot = selectedLots.find(lot => lot.idLot == lotId); // Buscar en la lista de lotes seleccionados
-        
         if (foundLot) {
             let currentExistence = parseInt(lotElement.getAttribute('data-current-existence'), 10);
             
@@ -97,11 +105,53 @@ async function update_the_lots_of_the_product_in_the_car() {
                 
                 // Llamar a la función asíncrona
                 await get_answer_server_for_lot({newQuantity:newQuantity}, `/links/${lotId}/edit-lot-quantity`);
+
+                
+                //we will see if exist product that need prescription in the cart
+                if (existProductThatNeedPrescription) {
+                    //her we will know if the product need presciption
+                    const newPrescription=update_the_prescription_for_save_after(foundLot.barcode, lotId, foundLot.quantity, id_customer);
+                    if(newPrescription){ //her know will see if the product need a recipe
+                        information_of_recipe_for_sned_to_the_server.push(newPrescription);
+                    }
+                }
             } else {
                 console.warn(`Error: El lote con ID ${lotId} no tiene una existencia válida.`);
             }
         }
     }
+
+
+
+    //we will see if exist product that need prescription in the cart
+    if (existProductThatNeedPrescription) {
+        await save_the_recipe_in_the_database(); //if exist product that need recipe, send the information to the server
+    }
+}
+
+function update_the_prescription_for_save_after(barcode, newIdLot, newAmount, newIdCustomer) {
+    for (let i = 0; i < information_of_recipe.length; i++) {
+        let recipe = information_of_recipe[i];
+        
+        if (recipe.barcode === barcode) {
+            let newRecipe = {
+                id_dishes_and_combos: recipe.id_dishes_and_combos,
+                barcode: recipe.barcode,
+                recipeId: recipe.recipeId,
+                doctorLicense: recipe.doctorLicense,
+                doctorName: recipe.doctorName,
+                prescriptionDate: recipe.prescriptionDate,
+                retained: recipe.retained,
+                comments: recipe.comments,
+                id_lot: newIdLot,
+                amount: newAmount,
+                id_customer: newIdCustomer
+            };
+
+            return newRecipe; // Retorna el objeto actualizado y sale del bucle
+        }
+    }
+    return false;
 }
 
 
@@ -229,7 +279,7 @@ async function delete_all_car(total, moneyReceived, exchange, comment) {
     return true;
 }
 
-async function addToCart(img, name, barcode, price, purchaseUnit, this_product_is_sold_in_bulk, id_dishes_and_combos,thisIsProductWithLot=true) {
+async function addToCart(img, name, barcode, price, purchaseUnit, this_product_is_sold_in_bulk, id_dishes_and_combos,thisIsProductWithLot=true,this_product_need_a_recipe=false) {
     //her we will see if exist a product in the cart
     const existingItem = cartItems.find(item => item.barcode === barcode);
 
@@ -240,6 +290,12 @@ async function addToCart(img, name, barcode, price, purchaseUnit, this_product_i
     if (lotsInfo && thisIsProductWithLot) {
         if(existingItem){
             warningMessage('Mucho Ojo 👁️','Para agregar más cantidad de este producto, debes eliminarlo y volver a seleccionar los lotes.')
+            return;
+        }
+
+        //her we will see if the product need a recipe 
+        if (this_product_need_a_recipe=='true'){
+            show_recipe(img, name, barcode, price, purchaseUnit, this_product_is_sold_in_bulk, id_dishes_and_combos,thisIsProductWithLot,this_product_need_a_recipe); //this is for show the message pop for get the data of the recipe
             return;
         }
 
@@ -298,7 +354,20 @@ async function addToCart(img, name, barcode, price, purchaseUnit, this_product_i
     
     }
 
+    //update the cart
     updateCart(lotsInfo);
+}
+
+function remove_all_the_item_in_the_cart_that_not_exist_in_the_array_of_the_recipe(){
+    //her code is for that not exist a product in the cart that not exist in the array of the recipe. 
+    //This is for not save recipe that the user no have in the cart
+    information_of_recipe = information_of_recipe.filter(recipe => 
+        cartItems.some(item => item.barcode === recipe.barcode)
+    );
+
+    information_of_recipe_for_sned_to_the_server = information_of_recipe_for_sned_to_the_server.filter(recipe => 
+        cartItems.some(item => item.barcode === recipe.barcode)
+    );
 }
 
 function get_the_lot_of_the_product(barcode) {
@@ -338,6 +407,8 @@ function show_all_the_lot_of_the_product(lotsInfo,img, name, barcode, price, pur
 }
 
 function updateCart(lotsInfo=null) {
+    remove_all_the_item_in_the_cart_that_not_exist_in_the_array_of_the_recipe(); //clear the list
+
     const cartItemsContainer = document.getElementById('cart-items');
     cartItemsContainer.innerHTML = '';
 
