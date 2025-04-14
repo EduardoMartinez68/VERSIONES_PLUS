@@ -639,6 +639,7 @@ pool.getConnection((err, connection) => {
 })
 
 pool.query=promisify(pool.query)
+const axios = require('axios');
 
 async function get_answer_of_my_api(api,data){
     const rows = await axios.post(`https://www.pluspuntodeventa.com/api/${api}`, data, {
