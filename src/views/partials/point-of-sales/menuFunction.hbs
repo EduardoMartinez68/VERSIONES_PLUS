@@ -1,0 +1,112 @@
+
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --bg: #f9fafb;
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .menu-most-oprtions-container {
+      position: relative;
+      z-index: 150;
+    }
+
+    .menu-most-oprtions-toggle {
+      background: transparent;
+      border: none;
+      padding: 6px;
+      font-size: 22px;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.25s;
+    }
+
+    .menu-most-oprtions-toggle.open {
+      transform: rotate(90deg);
+    }
+
+    .menu-most-oprtions-toggle:hover {
+      /*background: #f0f0f0;*/
+    }
+
+    .menu-most-oprtions-options {
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      padding: 8px 0;
+      box-shadow: var(--shadow);
+      min-width: 200px;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+    .menu-most-oprtions-options.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .menu-most-oprtions-options a {
+      display: block;
+      padding: 12px 18px;
+      color: #333;
+      text-decoration: none;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+
+    .menu-most-oprtions-options a:hover {
+      background: #f1f5f9;
+    }
+
+    .menu-most-oprtions-options a + a {
+      border-top: 1px solid #f0f0f0;
+    }
+  </style>
+
+
+  <div class="menu-most-oprtions-container">
+    <button class="menu-most-oprtions-toggle" onclick="toggleMenu()">
+      <i class="fi fi-rs-menu-dots"></i>
+    </button>
+    <div class="menu-most-oprtions-options" id="menuMostOptions">
+        {{#each dataEmployee}}
+            <input type="text" value="{{id_branches}}" style="display: none;" id="id_branch">
+            <!--
+            <a onclick="seleccionarOpcion('recargas')">Recargas Telefonicas</a>
+            <a  onclick="seleccionarOpcion('servicios')">Pagos de servicios</a>
+            <a onclick="update_credit_for_my_rechange()">Actualizar mis creditos</a>
+            -->
+            <a onclick="select_customer('{{id_companies}}')">Buscar Cliente</a>
+            <a  onclick="cash_movement('{{id}}','{{id_branches}}')">Movimiento de caja</a>
+            <a onclick="print_the_last_ticket()">Imprimir Ultimo Ticket</a>
+        {{/each}}
+    </div>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById("menuMostOptions");
+      const toggleButton = document.querySelector(".menu-most-oprtions-toggle");
+
+      // Mostrar/ocultar el menú
+      menu.classList.toggle("show");
+      
+      // Cambiar el estado de rotación del botón
+      toggleButton.classList.toggle("open");
+    }
+
+    // Cerrar el menú si haces clic fuera
+    document.addEventListener("click", (e) => {
+      const menu = document.getElementById("menuMostOptions");
+      const toggle = document.querySelector(".menu-most-oprtions-toggle");
+      if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+        menu.classList.remove("show");
+        toggle.classList.remove("open");
+      }
+    });
+  </script>
