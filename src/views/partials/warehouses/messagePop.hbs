@@ -1,0 +1,277 @@
+<style>
+    /*MESSAGE POP*/
+    /* Fondo oscuro para el pop */
+    .pop-request-overlay {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pop-request-modal {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        max-width: 550px;
+        width: 90%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease-in-out;
+        position: relative;
+    }
+
+    .pop-request-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #555;
+        font-weight: bold;
+        background: transparent;
+        border: none;
+    }
+
+    .pop-request-content {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .pop-request-img {
+        width: 25%;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .pop-request-info {
+        width: 75%;
+    }
+
+    .pop-request-info p {
+        margin: 6px 0;
+        font-size: 14px;
+    }
+
+    .pop-request-qty {
+        display: flex;
+        align-items: center;
+        /* centra verticalmente */
+        justify-content: center;
+        /* centra horizontalmente */
+        gap: 10px;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    .pop-request-qty input {
+        width: 60%;
+        height: 50px;
+        text-align: center;
+        font-size: 16px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    .pop-request-btn {
+        background: var(--color-company);
+        color: #fff;
+        border: none;
+        padding: 12px;
+        width: 100%;
+
+        border-radius: 8px;
+        margin-top: 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .pop-request-btn:hover {
+        background: #044e8f;
+    }
+
+    .pop-request-plus-minus {
+        background: var(--color-company);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 30%;
+        height: 50px;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+
+<!-- Pop request modal -->
+<div id="pop-request-overlay" class="pop-request-overlay">
+    <div class="pop-request-modal">
+        <button class="pop-request-close" onclick="closePopRequest()">×</button>
+        <div class="pop-request-header" style="color: var(--color-company); font-weight: bold; margin-bottom: 15px;">
+            Detalle del producto
+        </div>
+
+        <div class="pop-request-content">
+            <img id="pop-request-img" class="pop-request-img"
+                src="https://panoli.mx/cdn/shop/products/00750105862010L.jpg?v=1618500354" alt="Imagen del producto">
+
+            <div class="pop-request-info">
+                <label id="pop-request-code">1234567890</label>
+                <p><strong id="pop-request-name">Nombre del Producto</strong></p>
+                <p><strong>Existencia:</strong> <span id="pop-request-stock">10</span></p>
+                <p>$85.00</p>
+            </div>
+        </div>
+        <div class="pop-request-qty">
+            <button class="pop-request-plus-minus" onclick="adjustQty(-1)">−</button>
+            <input type="number" id="pop-request-qty" value="1" min="0">
+            <button class="pop-request-plus-minus" onclick="adjustQty(1)">+</button>
+        </div>
+        <button class="pop-request-btn" onclick="closePopRequest()">Aceptar</button>
+    </div>
+</div>
+<script>
+
+    const listProducts = [
+        {
+            id: 1,
+            image: 'https://panoli.mx/cdn/shop/products/00750105862010L.jpg?v=1618500354',
+            name: 'Producto 1',
+            code: '1234567890',
+            requested: 0,
+            amountToSend: 0,
+            stock: 10,
+            salePrice: 10,
+            total: 10,
+        },
+        {
+            id: 2,
+            image: 'https://panoli.mx/cdn/shop/products/00750105862010L.jpg?v=1618500354',
+            name: 'Producto 2',
+            code: '8783682456',
+            requested: 0,
+            amountToSend: 0,
+            stock: 10,
+            salePrice: 10,
+            total: 10,
+        }
+    ];
+
+    function openPopRequest(barcode) {
+        document.getElementById('pop-request-overlay').style.display = 'flex';
+        const producto = listProducts.find(product => product.code === barcode); //search the product by barcode
+
+        //now we will see if exist this product in the list
+        if (!producto) {
+            console.error('Producto no encontrado');
+            return;
+        }
+
+        //her we will update the data of the message pop with the data of the product selected
+        document.getElementById('pop-request-img').src = producto.image;
+        document.getElementById('pop-request-name').textContent = producto.name;
+        document.getElementById('pop-request-code').textContent = producto.code;
+        document.getElementById('pop-request-stock').textContent = producto.stock;
+    }
+
+    function closePopRequest() {
+        document.getElementById('pop-request-overlay').style.display = 'none';
+    }
+
+    function adjustQty(amount) {
+        const input = document.getElementById('pop-request-qty');
+        let value = parseInt(input.value) || 0;
+        value += amount;
+        if (value < 0) value = 0;
+        input.value = value;
+    }
+
+    function renderizarTablaCompleta() {
+        const tbody = document.getElementById('tabla');
+        tbody.innerHTML = ''; // Limpiar tabla
+
+        listProducts.forEach((product, index) => {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-index', index); // Lo usamos luego para editar
+
+            tr.innerHTML = `
+            <td>
+                <input type="checkbox" class="check-fila">
+            </td>
+            <td class="information-product">
+                <img src="${product.image}" alt="" class="product-table-img">
+                <div class="product-text">
+                    <label>${product.code}</label><br>
+                    <span>${product.name}</span>
+                </div>
+            </td>
+            <td>${product.requested} pz</td>
+            <td>${product.stock} pz</td>
+            <td>
+                <div class="input-group">
+                    <button onclick="openPopRequest('${product.code}')" class="form-control text-center">${product.amountToSend}</button>
+                </div>
+            </td>
+            <td>${product.salePrice}</td>
+            <td>${product.total}</td>
+            </tr>
+        `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    
+    renderizarTablaCompleta();
+
+
+    function actualizarFilaPorCantidad(code, nuevaCantidad) {
+        // Buscar el producto por su código
+        const index = listProducts.findIndex(p => p.code === code);
+        if (index === -1) return;
+
+        // Actualizar los valores en el array
+        listProducts[index].amountToSend = nuevaCantidad;
+        listProducts[index].total = nuevaCantidad * listProducts[index].salePrice;
+
+        // Actualizar la fila en la tabla (sin volver a renderizar todo)
+        const tbody = document.getElementById('tabla');
+        const filas = tbody.querySelectorAll('tr');
+
+        for (let fila of filas) {
+            const filaIndex = parseInt(fila.getAttribute('data-index'));
+            if (filaIndex === index) {
+                const btnCantidad = fila.querySelector('button');
+                const tdTotal = fila.querySelectorAll('td')[6]; // Última celda
+
+                btnCantidad.textContent = nuevaCantidad;
+                tdTotal.textContent = listProducts[index].total;
+                break;
+            }
+        }
+    }
+
+
+
+
+    
+</script>

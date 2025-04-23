@@ -1,0 +1,358 @@
+<style>
+    :root {
+        --blue: #1649FF;
+        --gray: #f4f4f4;
+        --green: #4CAF50;
+        --red: #E53935;
+        --yellow: #FBC02D;
+        --gray-text: #666;
+    }
+
+    .notification-actions {
+        margin-bottom: 1.5rem;
+    }
+
+    .notification-actions a {
+        margin-right: 1rem;
+        text-decoration: none;
+        background: var(--color-company);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: background 0.3s ease;
+    }
+
+    .notification-actions a:hover {
+        background: var(--color-hover);
+    }
+
+    .notification-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 8px;
+        scroll-behavior: smooth;
+    }
+
+    /* Scrollbar personalizado */
+    .notification-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .notification-list::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 3px;
+    }
+
+    .notification-list::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    .notification {
+        background: var(--gray);
+        border-left: 6px solid var(--blue);
+        padding: 1rem;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        position: relative;
+    }
+
+    .notification .status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.75rem;
+        border-radius: 12px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .status.sent {
+        background: var(--blue);
+        color: white;
+    }
+
+    .status.read {
+        background: var(--green);
+        color: white;
+    }
+
+    .status.denied {
+        background: var(--red);
+        color: white;
+    }
+
+    .status.approved {
+        background: var(--green);
+        color: white;
+    }
+
+    .status.delivered {
+        background: var(--blue);
+        color: white;
+    }
+
+    .status.cancelled {
+        background: #999;
+        color: white;
+    }
+
+    .notification small {
+        color: var(--gray-text);
+    }
+
+.btn-accept {
+    background-color: #4CAF50;
+    color: white;
+    margin-right: 1rem;
+}
+
+.btn-accept:hover {
+    background-color: #3e8e41;
+    color: white;
+}
+
+/* Botón denegar (rojo) */
+.btn-deny {
+    background-color: #E53935;
+    color: white;
+}
+
+.btn-deny:hover {
+    background-color: #c62828;
+    color: white;
+}
+
+    @media (max-width: 600px) {
+        .notification {
+            font-size: 0.9rem;
+        }
+
+        .notification-actions a {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+<br><br>
+<div class="container">
+    <!--her we will save the information of the server-->
+    {{#each dataServer}}
+        <input type="text" value="{{token}}" id="dataServerToken" hidden>
+    {{/each}}
+
+
+    <label><i class="fi fi-ss-warehouse-alt"></i> Almacenes</label>
+    <hr>
+    <div class="card">
+        <div class="card-body">
+            <h2>Centro de Notificaciones</h2>
+
+            {{#each branchFree}}
+                <div class="notification-actions">
+                    <a href="#" onclick="nextWeb('/{{id_companies}}/{{id}}/request_transfer')">Solicitar traspaso</a>
+                    <a href="#" onclick="getMyNotifications()">Enviar traspaso</a>
+                    <a onclick="location.reload()">Actualizar</a>
+                </div>
+            {{/each}}
+
+
+            <div class="notification-list">
+
+                <div class="notification">
+                    <div class="status sent">Enviado</div>
+                    <p>La sucursal <strong>Pepe</strong> solicitó un traspaso de 10 unidades de Leche Deslactosada.</p>
+                    <small>Hace 5 minutos</small>
+                    <br>
+                    <button class="btn btn-accept">Aceptar</button><button class="btn btn-deny">Denegar</button>
+                </div>
+
+                <div class="notification">
+                    <div class="status read">Enviado</div>
+                    <p>Tu solicitud de traspaso fue enviada por <strong>Sucursal Centro</strong>.</p>
+                    <small>Hace 20 minutos</small>
+                    <br>
+                    <button class="btn btn-edit" onclick="nextWeb('/1/8/evaluateDelivery')">Evaluar</button>
+                </div>
+
+                <div class="notification">
+                    <div class="status denied">Denegado</div>
+                    <p>La solicitud de envío para <strong>Producto XYZ</strong> fue denegada por falta de stock.</p>
+                    <small>Hace 1 hora</small>
+                </div>
+
+                <div class="notification">
+                    <div class="status delivered">Entregado</div>
+                    <p>El traspaso hacia <strong>Sucursal Norte</strong> fue entregado correctamente.</p>
+                    <small>Ayer</small>
+                </div>
+
+                <div class="notification">
+                    <div class="status cancelled">Cancelado</div>
+                    <p>La entrega del producto <strong>Pan Integral</strong> fue cancelada.</p>
+                    <small>Hace 3 días</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<select id="branchSelect" name="branch">
+</select>
+
+<script>
+    const tokenServer=document.getElementById('dataServerToken').value; //her get the token of the software
+    let listbranch=null;
+
+    async function getMyNotifications() {
+        //we will see if have the information of our branch save
+        if(listbranch==null){
+            //if not have save the information of the branch, we will get the information from the database
+            const answerApi=await get_answer_server({token:tokenServer},`https://pluspuntodeventa.com/app/api_transfer/get_all_the_branch.php`);
+
+            //we will see if the server return most branch
+            if(answerApi.success){
+                listbranch=answerApi.branches;
+            }else{
+                alert('Ocurrio un error al obtener sucursales');
+                return;
+            }         
+        }
+
+        //create the select
+        const select = document.getElementById('branchSelect');
+
+        // Limpiamos por si acaso
+        select.innerHTML = '';
+
+        // Agregar opción por defecto
+        const defaultOption = document.createElement('option');
+        defaultOption.text = 'Selecciona una sucursal';
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+
+        //if exist data save, get show the information in the screen
+        for(var i=0;i<listbranch.length;i++){
+            const option = document.createElement('option');
+            option.value = listbranch[i].token_id;
+            option.text = listbranch[i].name;
+            select.appendChild(option);
+        }
+    }
+
+    /*
+    async function get_my_notification(date){
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "flex";
+
+        try {
+            //we will watching if the server can complete the pay and setting the inventory
+            const answerServer = await get_answer_server({ }, `https://pluspuntodeventa.com/app/api_transfer/get_all_the_branch.php`);
+
+            //we will see if save the commander 
+            if (!isNaN(answerServer.message)) {
+                return true;
+            } else {
+                //if the server not can complete the pay we going to send a message of error
+                errorMessage('ERROR 👁️', answerServer.message + ' 👉👈');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorMessage('ERROR ⚠️', 'Se produjo un error al procesar tu solicitud.');
+            return false;
+        } finally {
+            // Hide loading overlay regardless of success or failure
+            loadingOverlay.style.display = "none";
+        }
+    }
+
+    async function get_all_my_branch(){
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        loadingOverlay.style.display = "flex";
+        const token;
+
+        try {
+            //we will watching if the server can complete the pay and setting the inventory
+            const answerServer = await get_answer_server({token}, `https://pluspuntodeventa.com/app/api_transfer/get_all_the_branch.php`);
+
+            //we will see if save the commander 
+            if (!isNaN(answerServer.message)) {
+                return true;
+            } else {
+                //if the server not can complete the pay we going to send a message of error
+                errorMessage('ERROR 👁️', answerServer.message + ' 👉👈');
+                return false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorMessage('ERROR ⚠️', 'Se produjo un error al procesar tu solicitud.');
+            return false;
+        } finally {
+            // Hide loading overlay regardless of success or failure
+            loadingOverlay.style.display = "none";
+        }
+    }
+
+    async function get_answer_server(dataToTheServer, link) {
+        try {
+            const url = link;
+            // Configurar la solicitud
+            const options = {
+                method: 'POST', // Puedes usar POST en lugar de GET si necesitas enviar muchos datos
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToTheServer)
+            };
+
+            // Realizar la solicitud y esperar la respuesta
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
+            }
+
+            // Convertir la respuesta a JSON y devolverla
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+    */
+    async function get_answer_server(dataToTheServer, link) {
+        try {
+            const url = link;
+            // Configurar la solicitud
+            const options = {
+                method: 'POST', // Puedes usar POST en lugar de GET si necesitas enviar muchos datos
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToTheServer)
+            };
+
+            // Realizar la solicitud y esperar la respuesta
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
+            }
+
+            // Convertir la respuesta a JSON y devolverla
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+            return false;
+        }
+    }
+</script>

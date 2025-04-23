@@ -1,0 +1,148 @@
+
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel='stylesheet'
+    href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+
+  <div class="container my-5">
+    <h2>Transporte de Mercancía</h2>
+
+      <!--her we will save the data of the token that the user use-->
+      {{#each dataServer}}
+        <input type="text" value="{{token}}" id="dataServerToken" hidden>
+      {{/each}}
+
+      <!--now we will show my branch and the other branch of the company--->
+      {{#each branchFree}}
+        <div class="text my-3">
+          <span class="traspaso-info">
+            Desde <strong>{{name_branch}}</strong> hasta
+            <strong>
+              <select name="branch" id="branchSelect" class="branchSelect form-select" aria-label="Default select example">
+                <option value="">Selecciona una sucursal</option>
+              </select>
+            </strong>
+          </span>
+          <button class="btn btn-primary update-branch" onclick="get_all_the_branch()">Actualizar Sucursales</button>
+        </div>
+      {{/each}}
+
+
+    {{>warehouses/tableSendTransport}}
+    {{>warehouses/messagePop}}
+    {{>warehouses/popSearchProducts}}
+    {{>loading}}
+  </div>
+
+<script>
+    // in this script we will get all the branch of the company
+    const tokenServer = document.getElementById('dataServerToken').value; //her get the token of the software
+    let listbranch = null;
+
+    async function get_all_the_branch() {
+        //we will see if have the information of our branch save
+        if (listbranch === null) {
+            const loadingOverlay = document.getElementById("loadingOverlay");
+            loadingOverlay.style.display = "flex";
+
+            //if not have save the information of the branch, we will get the information from the database
+            const answerApi = await get_answer_server({ token: tokenServer }, `https://pluspuntodeventa.com/app/api_transfer/get_all_the_branch.php`);
+
+            //we will see if the server return most branch
+            if (answerApi.success) {
+                listbranch = answerApi.branches;
+            } else {
+                await informationMessage('Uy... 😢', 'No pudimos cargar las sucursales disponibles. Pero no te preocupes, inténtalo de nuevo más tarde.');
+                return;
+            }
+
+            loadingOverlay.style.display = "none";
+        }
+
+        //create the select
+        const select = document.getElementById('branchSelect');
+
+        // Limpiamos por si acaso
+        select.innerHTML = '';
+
+        // Agregar opción por defecto
+        const defaultOption = document.createElement('option');
+        defaultOption.text = 'Selecciona una sucursal';
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        select.appendChild(defaultOption);
+
+        //if exist data save, get show the information in the screen
+        for (var i = 0; i < listbranch.length; i++) {
+            const option = document.createElement('option');
+            option.value = listbranch[i].token_id;
+            option.text = listbranch[i].name;
+            select.appendChild(option);
+        }
+
+        confirmationMessage('¡Todo listo! 😍', 'Las sucursales disponibles se han actualizado con éxito.');
+    }
+
+      async function get_answer_server(dataToTheServer, link) {
+
+        try {
+            const url = link;
+            // Configurar la solicitud
+            const options = {
+                method: 'POST', // Puedes usar POST en lugar de GET si necesitas enviar muchos datos
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dataToTheServer)
+            };
+
+            // Realizar la solicitud y esperar la respuesta
+            const response = await fetch(url, options);
+
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
+            }
+
+            // Convertir la respuesta a JSON y devolverla
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+</script>
+
+
+
+
+
+<script>
+  function toggleCompleto(checkbox) {
+
+  }
+
+
+  document.getElementById('busqueda').addEventListener('input', function () {
+      /*
+    const filtro = this.value.toLowerCase();
+    const filas = document.querySelectorAll('.table tbody tr'); // Cambié aquí el selector
+
+    filas.forEach(fila => {
+      const codigo = fila.querySelector('.codigo-barras')?.textContent.toLowerCase() || '';
+      fila.style.display = codigo.includes(filtro) ? '' : 'none';
+    });
+    */
+  });
+
+
+  function seleccionarTodos(masterCheckbox) {
+    const checkboxes = document.querySelectorAll('.check-fila');
+    checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+  }
+
+  // Puedes usar esta función si más adelante quieres hacer una acción masiva
+  function obtenerFilasSeleccionadas() {
+    return Array.from(document.querySelectorAll('.check-fila:checked')).map(cb => cb.closest('tr'));
+  }
+</script>
