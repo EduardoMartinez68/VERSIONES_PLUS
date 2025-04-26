@@ -1,6 +1,142 @@
 const loadingOverlay = document.getElementById("loadingOverlay");
-const cartItems = [];
+let cartItems = [];
 let cartTotal = 0;
+
+const carsInWait=[]
+
+//update value of the cars in wait, this is for that the user can see the cars in wait after refresh the page
+/*
+const storedCarts = localStorage.getItem('carsInWait');
+if (storedCarts) {
+    carsInWait = JSON.parse(storedCarts);
+    alert(`Hay ${carsInWait.length} carritos en espera`);
+}
+*/
+
+function create_a_sale_in_wait(){
+    //first we will see if exist a product in the cart
+    if (cartItems.length === 0) {
+        errorMessage('ERROR 👁️', 'No hay productos en el carrito para guardar en espera.');
+        return;
+    }
+
+    const emailClient = document.getElementById('emailClient');
+    const id_customer = emailClient.getAttribute('idClient');
+
+    const now = new Date();
+    const formattedDate = now.toLocaleString(); // Ej: "25/04/2025, 14:32:05"
+    const copyCartItems = [...cartItems];
+
+
+    const copyRecipe=[...information_of_recipe];
+    const informationCartInWait={
+        emailClient:emailClient.textContent,
+        id_customer:id_customer,
+        date:formattedDate,
+        items:copyCartItems,
+        cartTotal:cartTotal,
+        recipe:copyRecipe
+    };
+
+    carsInWait.push(informationCartInWait); //add the cart to the array of cars
+    localStorage.setItem('carsInWait', JSON.stringify(carsInWait)); //save the cart in the local storage
+
+    //delete the customer
+    emailClient.setAttribute('idClient', null);
+    emailClient.textContent = '';
+
+    cartItems.length = 0; //restart the cart
+    information_of_recipe.length=0; //restart the recipe
+    updateCart(); //update the UI of the shooping cart for delete all the products
+
+    notificationMessage(`Nuevo carrito agregado ❤️`, 'Acabas de agregar un carrito a la lista de espera');
+}
+
+
+function show_popup_cart_in_wait() {
+    const storedCarts = localStorage.getItem('carsInWait');
+    if (storedCarts) {
+        carsInWait.length = 0; // vaciar el array original
+        carsInWait.push(...JSON.parse(storedCarts)); // llenar con los datos del localStorage
+    }
+
+    //we will see if exist a cart in the cars in wait
+    if (carsInWait.length === 0) {
+        errorMessage('ERROR 👁️', 'No hay carritos en espera.');
+        return;
+    }
+
+    // Elimina cualquier popup anterior
+    const existingOverlay = document.querySelector('.pop-cart-wait-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'pop-cart-wait-overlay';
+
+    overlay.innerHTML = `
+        <div class="pop-cart-wait-container">
+            <div class="pop-cart-wait-header">
+                <span class="pop-cart-wait-title">Carritos en espera</span>
+                <button class="pop-cart-wait-close">&times;</button>
+            </div>
+            <div class="pop-cart-wait-list">
+                ${carsInWait.map((cart, index) => `
+                    <div class="pop-cart-wait-item" data-index="${index}">
+                        <p><i class="fa-solid fa-user"></i> <strong>Cliente:</strong> ${cart.emailClient || 'Publico General'}</p>
+                        <p><i class="fa-regular fa-clock"></i> <strong>Fecha:</strong> ${cart.date}</p>
+                        <p><i class="fa-solid fa-dollar-sign"></i> <strong>Total:</strong> <span class="pop-cart-wait-bold">$${cart.cartTotal.toFixed(2)}</span></p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    document.querySelector('.pop-cart-wait-close').addEventListener('click', () => {
+        overlay.remove();
+    });
+
+    // Delegar eventos de clic
+    document.querySelectorAll('.pop-cart-wait-item').forEach(item => {
+        item.addEventListener('click', async (e) => {
+            overlay.remove(); // cerrar el popup
+            const index = parseInt(item.getAttribute('data-index'));
+
+            //we will see if can return the cart to the point of sale
+            if(await update_cart_in_wait(index)){
+                carsInWait.splice(index, 1);
+                localStorage.setItem('carsInWait', JSON.stringify(carsInWait)); // actualizar localStorage
+            }
+        });
+    });
+}
+
+async function update_cart_in_wait(index) {  
+    //first we will see if exist a product in the cart 
+    if (cartItems.length > 0) {
+        //we will see if the user would like delete the product
+        if (!await questionMessage('Tienes productos en este carrito 🛒','¿Estás seguro de querer eliminar el carrito actual?')) {
+            return false; //if the user not would like delete the product, we will return false
+        }
+    }
+
+    //if the user would like delete the product, we will delete the product
+    const cart = carsInWait[index];
+    emailClient.setAttribute('idClient', cart.id_customer);
+    emailClient.textContent = cart.emailClient;
+
+    cartItems = [...cart.items]; //copy the cart to the cart of the point of sale
+    cartTotal=cart.cartTotal;
+
+    information_of_recipe=[...cart.recipe]; //copy the recipe to the recipe of the point of sale
+
+    updateCart(); //update the UI of the shooping cart for delete all the products
+
+    notificationMessage(`Carrito recuperado ❤️`, 'Acabas de recuperar una compra de la lista de espera');
+    return true;
+}
+
 
 
 async function buy_my_car() {
@@ -84,8 +220,8 @@ async function send_buy_to_the_server(total, moneyReceived, exchange, comment, i
     }
 }
 
-
 async function update_the_lots_of_the_product_in_the_car(id_customer) {
+
     const existProductThatNeedPrescription = information_of_recipe.length > 0;
     for (let lotElement of document.querySelectorAll('.lot-item')) { // Usar 'for...of' en lugar de 'forEach'
         let lotId = lotElement.getAttribute('data-lot-id'); // ID del lote en el DOM
@@ -95,17 +231,16 @@ async function update_the_lots_of_the_product_in_the_car(id_customer) {
             let currentExistence = parseInt(lotElement.getAttribute('data-current-existence'), 10);
             
             if (!isNaN(currentExistence)) { // Asegurar que sea un número válido
-                let newQuantity = currentExistence - foundLot.quantity;
+                let newQuantity = foundLot.quantity //currentExistence - foundLot.quantity;
 
                 // Evitar valores negativos
                 newQuantity = newQuantity < 0 ? 0 : newQuantity;
-
-                // Actualizar el atributo y mostrar en el HTML
-                lotElement.setAttribute('data-current-existence', newQuantity);
                 
                 // Llamar a la función asíncrona
-                await get_answer_server_for_lot({newQuantity:newQuantity}, `/links/${lotId}/edit-lot-quantity`);
+                await get_answer_server_for_lot({newQuantity:newQuantity}, `/links/${lotId}/update-lot-quantity-for-sale`);
 
+                // Actualizar el atributo y mostrar en el HTML
+                //lotElement.setAttribute('data-current-existence', newQuantity);
                 
                 //we will see if exist product that need prescription in the cart
                 if (existProductThatNeedPrescription) {
@@ -120,7 +255,6 @@ async function update_the_lots_of_the_product_in_the_car(id_customer) {
             }
         }
     }
-
 
 
     //we will see if exist product that need prescription in the cart
@@ -154,9 +288,6 @@ function update_the_prescription_for_save_after(barcode, newIdLot, newAmount, ne
     return false;
 }
 
-
-
-
 async function get_answer_server_for_lot(dataToTheServer, link) {
     try {
         const url = link;
@@ -184,7 +315,6 @@ async function get_answer_server_for_lot(dataToTheServer, link) {
         throw error;
     }
 }
-
 
 async function get_answer_server(dataToTheServer, link) {
     try {
@@ -374,6 +504,10 @@ function get_the_lot_of_the_product(barcode) {
     // search the product in the menu
     let productElement = document.getElementById(barcode);
 
+    if (!productElement) {
+        return null;
+    }
+
     //we will see if the product have lot
     let lotsInfo = productElement.querySelector(".lots-info");
     return lotsInfo;
@@ -386,15 +520,14 @@ function show_all_the_lot_of_the_product(lotsInfo,img, name, barcode, price, pur
 
     //in this for we will get all the information of the lot
     lotElements.forEach(lotElement => {
-        let idLot = lotElement.querySelector("strong:nth-child(8)").nextSibling.nodeValue.trim();
-        let lotNumber = lotElement.querySelector("strong:nth-child(1)").nextSibling.nodeValue.trim();
-        let existence = parseInt(lotElement.getAttribute('data-current-existence'),10);
-        let manufactureDate = lotElement.querySelector("strong:nth-child(5)").nextSibling.nodeValue.trim();
-        let expirationDate = lotElement.querySelector("strong:nth-child(7)").nextSibling.nodeValue.trim();
-
-        //save the information in the array of the lot
+        let idLot = lotElement.getAttribute('data-lot-id');
+        let lotNumber = lotElement.getAttribute('data-lot-number');
+        let existence = parseInt(lotElement.getAttribute('data-current-existence'), 10);
+        let manufactureDate = lotElement.getAttribute('data-manufacture-date');
+        let expirationDate = lotElement.getAttribute('data-expiration-date');
+    
         lots.push({
-            id:idLot,
+            id: idLot,
             nombre: lotNumber,
             fechaInicio: manufactureDate,
             fechaFinal: expirationDate,

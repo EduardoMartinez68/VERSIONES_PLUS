@@ -1,13 +1,26 @@
 <br><br>
 <div class="container">
   <div class="row">
-    <div class="nav flex-column col nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <div class="nav flex-column col-4 nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         <a class="nav-link active" id="navbar-company-tab" data-toggle="pill" href="#navbar-navbar" role="tab"
             aria-controls="navbar-company" aria-selected="true"><i class="fi-icon  fi-sr-apps"></i> Interfaz</a>
 
         <a class="nav-link" id="navbar-navbar-tab" data-toggle="pill" href="#navbar-company" role="tab"
             aria-controls="navbar-navbar" aria-selected="true"><i class="fi-icon fi-sr-store-alt"></i> Informacion de la Empresa</a>
 
+        <!---
+        <a class="nav-link" id="nanvar-navbar-cfdi" data-toggle="pill" href="#navbar-cfdi" role="tab"
+            aria-controls="navbar-navbar" aria-selected="true"><i class="fi-icon fi-sr-file-invoice-dollar"></i> Informacion de facturacion</a>
+
+        <a class="nav-link" id="nanvar-navbar-ring" data-toggle="pill" href="#navbar-ring" role="tab"
+            aria-controls="navbar-navbar" aria-selected="true"><i class="fi-icon fi-sr-bell-ring"></i> Timbres</a>
+
+        <a class="nav-link" id="navbar-navbar-rechange" data-toggle="pill" href="#navbar-rechange" role="tab"
+            aria-controls="navbar-navbar" aria-selected="true"><i class="fi-icon fi-sr-coins"></i> Multiservicios</a>
+        --->
+
+
+        
             <!---
             <a class="nav-link" id="navbar-customer-tab" data-toggle="pill" href="#navbar-customer" role="tab"
                 aria-controls="navbar-customer" aria-selected="false"><i class="fi-icon fi-sr-user"></i> Cliente</a>
@@ -35,6 +48,9 @@
 
     <div class="tab-content col" id="v-pills-tabContent">
       {{>options/navbar}}
+      {{>options/rechange}}
+      {{>options/cfdi}}
+      {{>options/ring}}
       {{>options/company}}
     </div>
   </div>
