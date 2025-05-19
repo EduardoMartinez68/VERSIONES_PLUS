@@ -1,0 +1,155 @@
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <label for=""><i class="fi-icon fi-sr-label"></i> Etiquetas</label>
+            <hr>
+            {{#if labels}}
+            <!-- Barra superior con buscador y botón -->
+            <div class="header-bar">
+                <input type="text" id="searchInput" placeholder="Buscar etiqueta por nombre..."
+                    oninput="filterLabels()">
+                {{#each branchFree}}
+                <button onclick="nextWeb('/{{id_companies}}/{{id}}/add-labels')" class="btn btn-edit">Agregar nueva
+                    etiqueta</button>
+                {{/each}}
+            </div>
+
+            <div id="labelsList" class="labels-grid">
+                {{#each labels}}
+                <div class="label-card" id="label-{{id}}">
+                    <h3>{{name}}</h3>
+                    <p><strong>Tamaño:</strong> {{width}} x {{length}} mm</p>
+                    <button onclick="viewLabel({{id}})" class="btn btn-edit">Ver</button>
+                    <button onclick="deleteLabel('{{id}}','{{name}}')" class="btn btn-danger">Eliminar</button>
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <!-- Si no hay etiquetas -->
+            <div class="empty-state">
+                <h2>🎉 ¡Aún no tienes etiquetas creadas!</h2>
+                <p>Empieza haciendo clic en el botón <strong>Agregar</strong> para crear tu primera etiqueta
+                    personalizada.</p>
+                {{#each branchFree}}
+                <button onclick="nextWeb('/{{id_companies}}/{{id}}/add-labels')" class="btn btn-edit">Agregar nueva
+                    etiqueta</button>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+    </div>
+</div>
+{{>loading}}
+
+<style>
+    .container {
+        padding: 20px;
+        font-family: sans-serif;
+    }
+
+    .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    #searchInput {
+        padding: 8px;
+        width: 60%;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+
+    .labels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .label-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: #fafafa;
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .label-card h3 {
+        margin-top: 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        background-color: #f4f8ff;
+        padding: 40px;
+        border-radius: 10px;
+    }
+</style>
+
+<script>
+    function filterLabels() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const cards = document.querySelectorAll(".label-card");
+        cards.forEach(card => {
+            const title = card.querySelector("h3").textContent.toLowerCase();
+            card.style.display = title.includes(input) ? "block" : "none";
+        });
+    }
+
+    function openAddLabelModal() {
+        // Aquí deberías abrir un modal o redirigir al formulario
+        alert("Abrir modal o redirigir a formulario de creación.");
+    }
+
+    function viewLabel(id) {
+        if (!id) {
+            alert("ID de etiqueta no válido.");
+            return;
+        }
+
+        window.location.href = `/links/edit_label/${id}`;
+    }
+</script>
+<script>
+    async function deleteLabel(id, name) {
+        const confirm = await questionMessage(
+            `Eliminar la etiqueta "${name}"`,
+            '¿Estás seguro de que deseas eliminar esta etiqueta? Esta acción no se puede deshacer.'
+        );
+
+        if (!confirm) return;
+
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        try {
+            loadingOverlay.style.display = "flex"; // Mostrar pantalla de carga
+
+            const response = await fetch('/links/delete_label', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            const result = await response.json();
+            loadingOverlay.style.display = "none"; // Ocultar pantalla de carga
+
+            if (response.ok) {
+                confirmationMessage('😉 Etiqueta eliminada',`La etiqueta "${name}" fue eliminada correctamente`);
+
+                // Eliminar el elemento visualmente de la UI
+                const labelElement = document.querySelector(`#label-${id}`);
+                if (labelElement) labelElement.remove();
+            } else {
+                errorMessage('😅 Error',`No se pudo eliminar la etiqueta: ${result.error || 'Error desconocido'}`);
+            }
+
+        } catch (error) {
+            loadingOverlay.style.display = "none";
+            console.error('Error al eliminar la etiqueta:', error);
+            errorMessage('😅 Error','Error al eliminar la etiqueta. Intenta nuevamente.');
+        }
+    }
+</script>

@@ -3637,6 +3637,181 @@ async function update_appointment(appointment, id_appointment){
     }
 }
 
+//-----------------------------------------------options
+const crypto = require('crypto');
+// Cargar variables de entorno
+require('dotenv').config();
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex'); //use the key like buffer
+
+// Clave secreta y vector de inicialización
+const IV = crypto.randomBytes(16); // 16 bytes para AES
+
+function encryptPassword(password) {
+  const cipher = crypto.createCipheriv('aes-256-cbc', ENCRYPTION_KEY, IV);
+  let encrypted = cipher.update(password, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return {
+    iv: IV.toString('hex'),
+    encryptedData: encrypted
+  };
+}
+
+function decryptPassword(encryptedData, iv) {
+  const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, Buffer.from(iv, 'hex'));
+  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
+
+router.post('/links/update_session_prontipagos', isLoggedIn, async (req, res) => {
+    try {
+        const { user, password } = req.body;
+
+        if (!user || !password) {
+            return res.status(400).json({ error: "Usuario y contraseña son obligatorios" });
+        }
+
+        const newPassword=encryptPassword(password); // Encriptar la contraseña
+
+        // Aquí puedes guardar, encriptar, o usar los datos como necesites
+        console.log("Usuario:", user);
+        console.log("Contraseña encriptada:", newPassword.encryptedData);
+        console.log("IV:", newPassword.iv);
+        console.log("Contraseña desencriptada:", decryptPassword(newPassword.encryptedData, newPassword.iv)); // Desencriptar para verificar
+
+        // Si todo sale bien, devuelve un mensaje de éxito
+        res.json({ message: "Cuenta activada correctamente -> "+user+" "+newPassword.encryptedData });
+    } catch (error) {
+        console.error("Error en update_session_prontipagos:", error);
+        res.status(500).json({ error: "Ocurrió un error en el servidor" });
+    }
+})
+
+
+//-----------------------------------------------------------------------------------labels
+router.post('/links/save_label', isLoggedIn, async (req, res) => {
+    try {
+        const { id_company, name, width, length, label } = req.body;
+        const id_branch = req.user.id_branch;
+
+        const newLabel = {
+            id_company,
+            id_branch,
+            name,
+            width,
+            length,
+            label
+        };
+
+        const insertedId = await insert_label(newLabel);
+        if(insertedId){
+            res.json({ message: "Etiqueta guardada correctamente", id: insertedId });
+        }
+        else{
+            res.status(500).json({ error: "No se pudo guardar la etiqueta" });
+        }
+    } catch (error) {
+        console.error("Error en save_label:", error);
+        res.status(500).json({ error: "No se pudo guardar la etiqueta" });
+    }
+})
+
+async function insert_label(label) {
+    // Validación de campos requeridos
+    if (!label.id_company || !label.name || !label.width || !label.length || !label.label || !label.id_branch) {
+        return false;
+    }
+
+    const queryText = `
+        INSERT INTO "Branch".labels (id_companies, id_branches, name, width, length, label)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id;
+    `;
+
+    const values = [
+        label.id_company,
+        label.id_branch,
+        label.name,
+        parseInt(label.width),
+        parseInt(label.length),
+        label.label // JSON string
+    ];
+
+    try {
+        const result = await database.query(queryText, values);
+        return result.rows[0].id; // Devuelve el ID insertado
+    } catch (error) {
+        console.log('Error al insertar etiqueta:', error);
+        return false;
+    }
+}
+
+router.post('/links/delete_label', isLoggedIn, async (req, res) => {
+    const { id } = req.body;
+
+    if (!id) {
+        return res.status(400).json({ error: "El ID de la etiqueta es obligatorio." });
+    }
+
+    try {
+        const deleted = await delete_label_by_id(id);
+
+        if (deleted) {
+            res.json({ message: "Etiqueta eliminada correctamente." });
+        } else {
+            res.status(404).json({ error: "Etiqueta no encontrada o no se pudo eliminar." });
+        }
+    } catch (error) {
+        console.error("Error al eliminar la etiqueta:", error);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+});
+
+async function delete_label_by_id(id) {
+    const queryText = `DELETE FROM "Branch".labels WHERE id = $1`;
+
+    try {
+        const result = await database.query(queryText, [id]);
+        return result.rowCount > 0; // true si se eliminó, false si no existía
+    } catch (error) {
+        console.error("Error al eliminar etiqueta en delete_label_by_id:", error);
+        return false;
+    }
+}
+
+router.post('/links/update-labels/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, width, length, label } = req.body;
+
+    const result = await update_label(id, name, width, length, label);
+    console.log(label)
+    if (result.success) {
+        res.json({ success: true, message: 'Etiqueta actualizada correctamente' });
+    } else {
+        res.status(500).json({ success: false, message: 'Error al actualizar etiqueta' });
+    }
+});
+
+async function update_label(id, name, width, length, labelJson) {
+    const queryText = `
+        UPDATE "Branch".labels
+        SET name = $1,
+            width = $2,
+            length = $3,
+            label = $4
+        WHERE id = $5
+    `;
+
+    try {
+        await database.query(queryText, [name, width, length, labelJson, id]);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating label:', error);
+        return { success: false, error };
+    }
+}
+
 
 
 //-----------------------------------------------apps
