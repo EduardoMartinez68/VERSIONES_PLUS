@@ -63,7 +63,9 @@ const {
 const {
     get_country,
     get_type_employees,
-    get_data_employee
+    get_data_employee,
+    search_employee,
+    search_employee_with_username
 } = require('../../services/employees');
 
 const {
@@ -95,6 +97,7 @@ const {
 } = require('../../services/permission');
 
 const database = require('../../database');
+const helpers=require('../../lib/helpers.js');
 
 const rolFree=0;
 
@@ -107,7 +110,40 @@ router.get('/:id_company/:id_branch/permission_denied', isLoggedIn, async (req, 
     res.render('links/web/permission_denied',{branchFree});
 });
 
+router.post('/this_user_is_admin', isLoggedIn, async (req, res) => {
+    const { username, password, permission } = req.body;
 
+    if (!username || !password || !permission) {
+        return res.status(400).json({ isAuthorized: false, message: 'Faltan datos' });
+    }
+
+    try {
+        const dataUserArr = await search_employee_with_username(username);
+        if (dataUserArr.length === 0) {
+            return res.status(404).json({ isAuthorized: false, message: 'Usuario no encontrado' });
+        }
+
+        const dataUser = dataUserArr[0];
+
+        const passwordMatch = await helpers.matchPassword(password.trim(), dataUser.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ isAuthorized: false, message: 'Contraseña incorrecta' });
+        }
+
+        if (!dataUser.hasOwnProperty(permission)) {
+            return res.status(403).json({ isAuthorized: false, message: `El permiso "${permission}" no existe` });
+        }
+
+        if (!dataUser[permission]) {
+            return res.status(403).json({ isAuthorized: false, message: `No tienes el permiso "${permission}"` });
+        }
+
+        return res.status(200).json({ isAuthorized: true });
+    } catch (err) {
+        console.error('Error al verificar permisos del admin:', err);
+        return res.status(500).json({ isAuthorized: false, message: 'Error interno del servidor', error: err });
+    }
+});
 /*
 *----------------------router-----------------*/
 router.get('/:id_user/:id_company/:id_branch/my-store', isLoggedIn, async (req, res) => {
@@ -1388,9 +1424,15 @@ router.get('/:id_company/:id_branch/prices', isLoggedIn, async (req, res) => {
 })
 
 
-
+//------------------------------------labels 
 router.get('/:id_company/:id_branch/labels', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.params;
+
+    //we will see if the user have the permission for this App.
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'view_label')){
+        req.flash('message', 'Lo siento, no tienes permiso para esta acción 😅');
+        return res.redirect(`/links/${id_company}/${id_branch}/permission_denied`);
+    }
 
     const branchFree = await get_data_branch(id_branch);
     const labels = await get_all_the_lables(id_company, id_branch);
@@ -1414,12 +1456,28 @@ async function get_all_the_lables(id_company,id_branch){
 router.get('/:id_company/:id_branch/add-labels', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.params;
 
+    //we will see if the user have the permission for this App.
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'add_label')){
+        req.flash('message', 'Lo siento, no tienes permiso para esta acción 😅');
+        return res.redirect(`/links/${id_company}/${id_branch}/permission_denied`);
+    }
+
     const branchFree = await get_data_branch(id_branch);
     res.render('links/labels/addLabels',{branchFree});
 })
 
 router.get('/edit_label/:id', isLoggedIn, async (req, res) => {
     const { id } = req.params;
+
+    const id_branch=req.user.id_branch;
+    const branchFree = await get_data_branch(id_branch);
+    const id_company=req.user.id_company;
+    
+    //we will see if the user have the permission for this App.
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'edit_label')){
+        req.flash('message', 'Lo siento, no tienes permiso para esta acción 😅');
+        return res.redirect(`/links/${id_company}/${id_branch}/permission_denied`);
+    }
 
     try {
         const queryText = `SELECT * FROM "Branch".labels WHERE id = $1;`;
@@ -1432,8 +1490,6 @@ router.get('/edit_label/:id', isLoggedIn, async (req, res) => {
         const label = result.rows[0];
         label.label = JSON.stringify(label.label);
 
-        const id_branch=req.user.id_branch;
-        const branchFree = await get_data_branch(id_branch);
         // Puedes renderizar un template con los datos para editar
         res.render('links/labels/editLabel', { branchFree, label });
     } catch (error) {
@@ -1446,6 +1502,16 @@ router.get('/edit_label/:id', isLoggedIn, async (req, res) => {
 router.get('/view_label/:id/name=:name/barcode=:barcode/price=:price', isLoggedIn, async (req, res) => {
     const { id, name, barcode, price } = req.params;
 
+    const id_branch=req.user.id_branch;
+    const branchFree = await get_data_branch(id_branch);
+    const id_company=branchFree.id_company;
+    
+    //we will see if the user have the permission for this App.
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'view_label')){
+        req.flash('message', 'Lo siento, no tienes permiso para esta acción 😅');
+        return res.redirect(`/links/${id_company}/${id_branch}/permission_denied`);
+    }
+
     try {
         const queryText = `SELECT * FROM "Branch".labels WHERE id = $1;`;
         const result = await database.query(queryText, [id]);
@@ -1457,8 +1523,6 @@ router.get('/view_label/:id/name=:name/barcode=:barcode/price=:price', isLoggedI
         const label = result.rows[0];
         label.label = JSON.stringify(label.label);
 
-        const id_branch=req.user.id_branch;
-        const branchFree = await get_data_branch(id_branch);
         // Puedes renderizar un template con los datos para editar
 
         const product = [{

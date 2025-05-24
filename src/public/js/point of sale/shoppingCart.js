@@ -1,5 +1,14 @@
 const loadingOverlay = document.getElementById("loadingOverlay");
 let cartItems = [];
+window.onload = () => {
+    const savedCartItems = localStorage.getItem('cartItems');
+    if (savedCartItems) {
+        cartItems = JSON.parse(savedCartItems);
+        updateCart();
+    }
+}
+
+
 let cartTotal = 0;
 
 const carsInWait=[]
@@ -13,7 +22,16 @@ if (storedCarts) {
 }
 */
 
-function create_a_sale_in_wait(){
+async function create_a_sale_in_wait(){
+    const add_product_on_backorder=document.getElementById('add_product_on_backorder');
+    if(add_product_on_backorder==null){
+        //if the user not have the permission to remove the product, we will send a message of warning
+        if(!await this_user_is_admin('Crear Venta en espera ⌛','add_product_on_backorder')){
+            warningMessage('🐣 ¡Ay, travieso!', 'Este superpoder está bloqueado para ti... por ahora.');
+            return;
+        }
+    }
+
     //first we will see if exist a product in the cart
     if (cartItems.length === 0) {
         errorMessage('ERROR 👁️', 'No hay productos en el carrito para guardar en espera.');
@@ -53,7 +71,16 @@ function create_a_sale_in_wait(){
 }
 
 
-function show_popup_cart_in_wait() {
+async function show_popup_cart_in_wait() {
+    const view_products_on_backorder=document.getElementById('view_products_on_backorder');
+    if(view_products_on_backorder==null){
+        //if the user not have the permission to remove the product, we will send a message of warning
+        if(!await this_user_is_admin('Ver Ventas en espera ⌛','view_products_on_backorder')){
+            warningMessage('🐣 ¡Ay, travieso!', 'Este superpoder está bloqueado para ti... por ahora.');
+            return;
+        }
+    }
+
     const storedCarts = localStorage.getItem('carsInWait');
     if (storedCarts) {
         carsInWait.length = 0; // vaciar el array original
@@ -113,6 +140,15 @@ function show_popup_cart_in_wait() {
 }
 
 async function update_cart_in_wait(index) {  
+    const select_product_on_backorder=document.getElementById('select_product_on_backorder');
+    if(select_product_on_backorder==null){
+        //if the user not have the permission to remove the product, we will send a message of warning
+        if(!await this_user_is_admin('Seleccionar Venta en espera ⌛','select_product_on_backorder')){
+            warningMessage('🐣 ¡Ay, travieso!', 'Este superpoder está bloqueado para ti... por ahora.');
+            return;
+        }
+    }
+
     //first we will see if exist a product in the cart 
     if (cartItems.length > 0) {
         //we will see if the user would like delete the product
@@ -486,6 +522,7 @@ async function addToCart(img, name, barcode, price, purchaseUnit, this_product_i
 
     //update the cart
     updateCart(lotsInfo);
+    
 }
 
 function remove_all_the_item_in_the_cart_that_not_exist_in_the_array_of_the_recipe(){
@@ -734,6 +771,10 @@ function updateCart(lotsInfo = null) {
 
     // Actualizar número de productos en el carrito
     document.getElementById('products-total').textContent = cartItems.length;
+
+
+    //save the data of the cart in the local storage
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
 }
 
 
@@ -754,7 +795,55 @@ function updateItemDiscount(barcode, discount) {
     }
 }
 
+
+
+async function get_the_key_of_the_admin(title) {
+    return new Promise((resolve, reject) => {
+        Swal.fire({
+            title: title,
+            html: `
+                <p style="margin-bottom: 10px;">Solicita este permiso a un admin</p>
+                <input id="admin-username" class="swal2-input" placeholder="Usuario del admin">
+                <input id="admin-password" class="swal2-input" type="password" placeholder="Contraseña del admin">
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: 'rgb(25, 135, 84)',
+            cancelButtonColor: 'rgb(220, 53, 69)',
+            preConfirm: () => {
+                const username = Swal.getPopup().querySelector('#admin-username').value.trim();
+                const password = Swal.getPopup().querySelector('#admin-password').value.trim();
+
+                if (!username || !password) {
+                    Swal.showValidationMessage('¡No te me escapas! Ambos campos son obligatorios 😜');
+                    return false;
+                }
+
+                return [username, password];
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                resolve(result.value);
+            } else {
+                resolve(null); // Por si cancela, puedes manejarlo como gustes
+            }
+        });
+    });
+}
+
 async function removeItem(barcode) {
+    const remove_product_for_sale = document.getElementById('remove_product_for_sale');
+    if(remove_product_for_sale==null){
+        //if the user not have the permission to remove the product, we will send a message of warning
+        if(!await this_user_is_admin('Eliminar producto 🗑️','delete_the_shopping_cart')){
+            warningMessage('🐣 ¡Ay, travieso!', 'Este superpoder está bloqueado para ti... por ahora.');
+            return;
+        }
+    }
+
     //her we will see if the user would like delete the product
     if (await questionMessage('Eliminar Producto 🤔', '¿Estás seguro de querer eliminar este producto?')) {
         //if the user would like delete the product, we will delete the product
@@ -769,6 +858,49 @@ async function removeItem(barcode) {
         notificationMessage('Producto eliminado 👍', 'El Producto fue eliminado correctamente')
     }
 }
+
+async function this_user_is_admin(title,permissionToCheck) {
+    const credentials = await get_the_key_of_the_admin(title);
+
+    if (!credentials || !credentials[0] || !credentials[1]) {
+        warningMessage('Cancelado', 'No se ingresaron credenciales 😅');
+        return false;
+    }
+
+    const [username, password] = credentials;
+
+    try {
+        const response = await fetch('/links/this_user_is_admin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+                permission: permissionToCheck
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error en la solicitud al servidor');
+        }
+
+        const result = await response.json();
+
+        if (result.isAuthorized) {
+            return true;
+        } else {
+            //result.message
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al verificar permisos del admin:', error);
+        errorMessage('Error', 'Algo salió mal al verificar el permiso 😓');
+        return false;
+    }
+}
+
 
 function buyItems() {
     alert('Compra realizada con éxito');

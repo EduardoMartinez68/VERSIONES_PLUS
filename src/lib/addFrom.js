@@ -18,6 +18,11 @@ const path = require('path');
 
 const printer = require('../lib/printer');
 
+//functions permission
+const {
+    this_user_have_this_permission
+} = require('../services/permission');
+
 //config the connection with digitalocean
 /*
 const AWS = require('aws-sdk');
@@ -1058,23 +1063,23 @@ function create_department_employee(req) {
 //add type user
 router.post('/fud/:id_company/add-type-employees', isLoggedIn, async (req, res) => {
     const { id_company } = req.params;
-    const { name } = req.body
-    if (await this_type_employee_exist(id_company, name)) {
+    const { name_role } = req.body;
+    if (await this_type_employee_exist(id_company, name_role)) {
         req.flash('message', 'El tipo de empleado no se agregó porque este nombre ya existe 😅')
     }
     else {
-        const typeEmployees = create_type_employee(id_company, req)
+        const typeEmployees = await create_type_employee(id_company, req)
         if (await addDatabase.add_type_employees(typeEmployees)) {
-            req.flash('success', 'El tipo de empleado fue agregado con exito 😄')
+            req.flash('success', 'El rol de empleado fue agregado con exito 😄')
         }
         else {
-            req.flash('message', 'El tipo de empleado no fue agregado 😰')
+            req.flash('message', 'El rol de empleado no fue agregado 😰')
         }
     }
 
     //we will see if the user have a subscription to fud one 
     if(req.user.rol_user==rolFree){
-        const { id_branch } = req.body;
+        const id_branch  = req.user.id_branch;
         res.redirect(`/links/${id_company}/${id_branch}/type-employees-free`);
     }else{
         res.redirect(`/links/${id_company}/type-user`);
@@ -1089,7 +1094,45 @@ async function this_type_employee_exist(idCompany, name) {
     return result.rows.length > 0;
 }
 
-function create_type_employee(id_company, req) {
+function create_type_employee2(id_company, req) {
+    // Campos base que siempre deben incluirse
+    const newRole = {
+        id_companies: id_company,
+        name_role: req.body.name_role || '',
+        salary: Number(req.body.salary) || 0,
+        currency: req.body.currency || 'mx',
+        type_of_salary: req.body.type_of_salary || 'Hour',
+        commissions: Number(req.body.commissions) || 0,
+        discount_for_product: Number(req.body.discount_for_product) || 0,
+    };
+
+    // Lista completa de permisos que corresponden a columnas booleanas
+    const allPermissions = [
+        'add_box', 'edit_box', 'delete_box', 'create_reservation', 'view_reservation',
+        'report_to_cofepris', 'view_reports', 'add_customer', 'edit_customer', 'delete_customer',
+        'cancel_debt', 'offer_loan', 'get_fertilizer', 'view_customer_credits', 'send_email',
+        'add_employee', 'edit_employee', 'delete_employee', 'create_schedule', 'assign_schedule',
+        'view_schedule', 'create_type_user', 'create_employee_department', 'view_sale_history',
+        'delete_sale_history', 'view_movement_history', 'delete_movement_history', 'view_supplies',
+        'add_supplies', 'edit_supplies', 'delete_supplies', 'view_products', 'edit_products',
+        'delete_products', 'view_combo', 'add_combo', 'edit_combo', 'delete_combo',
+        'view_food_departament', 'add_food_departament', 'edit_food_departament', 'delete_food_departament',
+        'view_food_category', 'add_food_category', 'edit_food_category', 'delete_food_category',
+        'waste_report', 'add_provider', 'edit_provider', 'delete_provider', 'view_provider',
+        'sell', 'apply_discount', 'apply_returns', 'add_offers', 'edit_offers', 'delete_offers',
+        'change_coins', 'modify_hardware', 'modify_hardware_kitchen', 'give_permissions',
+        'app_point_sales', 'view_inventory', 'edit_inventory', 'edit_employee_department',
+        'delete_employee_department', 'edit_rol_employee', 'delete_rol_employee', 'employee_roles',
+        'employee_department', 'view_employee'
+    ];
+
+    // Agregamos cada permiso según si viene en el body
+    for (const perm of allPermissions) {
+        newRole[perm] = req.body[perm] === 'on';
+    }
+
+    return newRole;
+
     const { name, salary, discount, comissions } = req.body
     const currency = req.body.currency
     const typeSalary = req.body.typeSalary
@@ -1186,6 +1229,35 @@ function create_type_employee(id_company, req) {
     return newTypeEmployee
 }
 
+const getRoleColumns = async () => {
+    const result = await database.query(`
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = 'Employee' AND table_name = 'roles_employees';
+    `);
+    return result.rows.map(row => row.column_name).filter(col => col !== 'id'); // Excluye el ID
+};
+
+async function create_type_employee(id_company,req) {
+    const columns = await getRoleColumns();
+    const newRole = {};
+
+    for (const column of columns) {
+        if (column === 'id_companies') {
+            newRole[column] = id_company;
+        } else if (['salary', 'commissions', 'discount_for_product'].includes(column)) {
+            newRole[column] = Number(req.body[column]) || 0;
+        } else if (['name_role', 'currency', 'type_of_salary'].includes(column)) {
+            newRole[column] = req.body[column] || '';
+        } else {
+            // Para todos los booleanos que vienen como 'on' si están activados
+            newRole[column] = req.body[column] === 'on';
+        }
+    }
+
+    return newRole;
+}
+
 function get_value_text(text) {
     return isNaN(parseFloat(text)) ? 0 : parseFloat(text);
 }
@@ -1200,7 +1272,8 @@ router.post('/fud/:id_company/:id_role/edit-role-employees', isLoggedIn, async (
     const { name } = req.body
 
     //get the new data role of the employee and update the old role
-    const typeEmployees = create_type_employee(id_company, req)
+    const typeEmployees = await create_type_employee(id_company, req)
+
     if (await update.update_role_employee(id_role, typeEmployees)) {
         req.flash('success', 'El rol de empleado se actualizó con éxito 😄')
     }
@@ -1210,7 +1283,7 @@ router.post('/fud/:id_company/:id_role/edit-role-employees', isLoggedIn, async (
 
     //we will see if the user have the subscription a fud one
     if(req.user.rol_user==rolFree){
-        const { id_branch } = req.body;
+        const id_branch  = req.user.id_branch;
         res.redirect(`/links/${id_company}/${id_branch}/type-employees-free`);
     }else{
         res.redirect(`/links/${id_company}/type-user`);
@@ -1802,6 +1875,73 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
                     canAdd=true;
                     await update_price_combo_for_excel(supplies.sale_price,idComboFacture);
                     res.redirect(`/links/${id_company}/${id_branch}/${idComboFacture}/edit-products-free`);
+                }
+            }
+        }
+    }
+
+
+    //we will see if exit a error in the process
+    if(!canAdd){
+        req.flash('message', 'El producto no fue agregado con éxito 👉👈')
+        res.redirect(`/links/${id_company}/${id_branch}/products-free`);
+    }
+})
+
+router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, async (req, res) => {
+    const { id_company, id_branch } = req.params;
+    let canAdd=false;
+
+    //this is for create the new supplies and save the id of the supplies
+    const newSupplies = await get_supplies_or_product_company(req, false);
+    console.log(newSupplies)
+    newSupplies.id_company=id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
+
+    const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
+    
+    //we will see if the product can be save in the database
+    if (idSupplies) {
+        //we will create the supplies in the branch
+        const idSuppliesFactures = await addDatabase.add_product_and_suppiles_features(id_branch, idSupplies) //add the supplies in the branch 
+
+        //we will creating the data of the supplies and we will saving with the id of the supplies that create
+        const supplies = create_supplies_branch(req, idSuppliesFactures);
+        
+        //update the data in the branch for save the new product in his branch
+        if (await update.update_supplies_branch(supplies)){
+
+            //get the new combo
+            const combo = await create_a_new_combo(req);
+            console.log(combo)
+
+            const dataProduct={idProduct:idSupplies,amount: 1,foodWaste: supplies.sale_amount,unity: supplies.sale_unity,additional: 0}
+            combo.supplies.push(dataProduct); //update the data of supplies use only the barcode of the product
+            
+            //we will see if can add the combo to the database
+            const idCombos = await addDatabase.add_product_combo_company(combo)
+
+            //we will wach if the user have a branch free or a franquicia
+            if (req.user.rol_user != rolFree) {
+                if (idCombos) {
+                    req.flash('success', 'El combo fue agregado con éxito ❤️')
+                }
+                else {
+                    req.flash('message', 'El combo no fue agregado con éxito 😳')
+                }
+                
+                //if the user have a franquicia we will save the combo in the company
+                res.redirect('/links/' + id_company + '/combos');
+            } else {
+                //get the data combo in the branch
+                const comboData = create_combo_data_branch(idCombos, id_company, id_branch);
+
+                // save the combo in the branch
+                const idComboFacture = await addDatabase.add_combo_branch(comboData);
+                if(idComboFacture){
+                    canAdd=true;
+                    await update_price_combo_for_excel(supplies.sale_price,idComboFacture);
+                    req.flash('success', 'El producto fue agregado con éxito ❤️')
+                    res.redirect(`/links/${id_company}/${id_branch}/products-free`);
                 }
             }
         }
@@ -3596,7 +3736,7 @@ router.post('/fud/:id_company/:id_branch/:id_prospect/:id_appointment/edit-appoi
 
     //we will create the appointment
     const appointment=create_appointment(id_company, id_branch,id_prospect,req)
-    console.log(appointment)
+
     //we will see if we could add the appointment
     if(await update_appointment(appointment,id_appointment)){
         req.flash('success', 'La cita se actualizo con éxito ❤️');
@@ -3663,34 +3803,143 @@ function decryptPassword(encryptedData, iv) {
   return decrypted;
 }
 
-
 router.post('/links/update_session_prontipagos', isLoggedIn, async (req, res) => {
     try {
         const { user, password } = req.body;
-
         if (!user || !password) {
             return res.status(400).json({ error: "Usuario y contraseña son obligatorios" });
         }
 
+        //first we will see if this count exist in the database of prontipagos
+        const answerServerPreontipagos=await loginProntipagos(user, password);
+        if(answerServerPreontipagos==null){
+            return res.status(400).json({ error: "Hubo un error con los servidores de prontipagos vuelve a intentarlo mas tarde." });
+        }else if(!answerServerPreontipagos){
+            return res.status(400).json({ error: "Usuario o contraseña incorrectos." });
+        }
+
+
+
+        //we will get the 
+        const id_branch=req.user.id_branch;
+
         const newPassword=encryptPassword(password); // Encriptar la contraseña
 
-        // Aquí puedes guardar, encriptar, o usar los datos como necesites
-        console.log("Usuario:", user);
-        console.log("Contraseña encriptada:", newPassword.encryptedData);
-        console.log("IV:", newPassword.iv);
-        console.log("Contraseña desencriptada:", decryptPassword(newPassword.encryptedData, newPassword.iv)); // Desencriptar para verificar
-
-        // Si todo sale bien, devuelve un mensaje de éxito
-        res.json({ message: "Cuenta activada correctamente -> "+user+" "+newPassword.encryptedData });
+        //we will see if can save this data in the database
+        if(await update_session_prontipagos(id_branch, user, newPassword.encryptedData, newPassword.iv)){
+            res.json({ message: "Cuenta activada correctamente -> "+user});
+        }
+        else{
+            return res.status(400).json({ error: "Error al guardar tus datos en la base de datos. Intentalo de nuevo." });
+        }
     } catch (error) {
         console.error("Error en update_session_prontipagos:", error);
         res.status(500).json({ error: "Ocurrió un error en el servidor" });
     }
 })
 
+router.post('/links/decryptPassword_of_prontipagos', isLoggedIn, async (req, res) => {
+    try {
+        const { encryptedData, iv } = req.body;
+
+        if (!encryptedData || !iv) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Los campos 'encryptedData' e 'iv' son obligatorios." 
+            });
+        }
+
+        const password = decryptPassword(encryptedData, iv);
+
+        if (!password) {
+            return res.status(500).json({ 
+                success: false, 
+                message: "No se pudo desencriptar la contraseña." 
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Contraseña desencriptada correctamente.",
+            password: password
+        });
+
+    } catch (error) {
+        console.error("Error en decryptPassword_of_prontipagos:", error);
+        res.status(500).json({ 
+            success: false,
+            message: "Ocurrió un error al desencriptar la contraseña.",
+            error: error.message
+        });
+    }
+});
+
+async function loginProntipagos(user, password) {
+    const url = 'https://prontipagos-api-dev.domainscm.com/prontipagos-external-api-ws/ws/v1/auth/login';
+
+    const body = {
+        username: user,
+        password: password
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("Login response:", data.code==0);
+        return data.code==0;
+
+    } catch (error) {
+        console.error("Error al hacer login:", error);
+        return null;
+    }
+}
+
+async function update_session_prontipagos(id_branch, user, password, iv) {
+    const queryText = `
+        UPDATE "Company".branches
+        SET 
+            user_prontipagos  = $1,
+            password_prontipagos  = $2,
+            iv_for_password  = $3
+        WHERE 
+            id = $4
+    `;
+
+    //create the array of the new data
+    var values = [user, password, iv, id_branch];
+
+    //update the provider data in the database
+    try {
+        await database.query(queryText, values);
+        return true;
+    } catch (error) {
+        console.error('Error updating provider:', error);
+        return false;
+    }
+}
+
 
 //-----------------------------------------------------------------------------------labels
 router.post('/links/save_label', isLoggedIn, async (req, res) => {
+    //we will see if the user have the permission for this App.
+    const { id_company, id_branch } = req.user;
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'add_label')){
+        res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
+    }
+
     try {
         const { id_company, name, width, length, label } = req.body;
         const id_branch = req.user.id_branch;
@@ -3748,6 +3997,12 @@ async function insert_label(label) {
 }
 
 router.post('/links/delete_label', isLoggedIn, async (req, res) => {
+    const { id_company, id_branch } = req.user;
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'delete_label')){
+        res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
+    }
+
+
     const { id } = req.body;
 
     if (!id) {
@@ -3781,6 +4036,11 @@ async function delete_label_by_id(id) {
 }
 
 router.post('/links/update-labels/:id', async (req, res) => {
+    const { id_company, id_branch } = req.user;
+    if(!this_user_have_this_permission(req.user,id_company, id_branch,'edit_label')){
+        res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
+    }
+
     const { id } = req.params;
     const { name, width, length, label } = req.body;
 
