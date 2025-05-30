@@ -23,6 +23,12 @@ const {
     this_user_have_this_permission
 } = require('../services/permission');
 
+//functions branch
+const {
+    get_data_branch,
+    get_branch
+} = require('../services/branch');
+
 //config the connection with digitalocean
 /*
 const AWS = require('aws-sdk');
@@ -37,10 +43,27 @@ const s3 = new AWS.S3({
 
 const bucketName = APP_NYCE;
 */
+
+async function downloadImageFromUrl(url, filename) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Error al descargar imagen: ${res.statusText}`);
+
+    const destPath = path.join(__dirname, '../public/img/uploads', filename);
+    const fileStream = fs.createWriteStream(destPath);
+
+    await new Promise((resolve, reject) => {
+        res.body.pipe(fileStream);
+        res.body.on("error", reject);
+        fileStream.on("finish", resolve);
+    });
+
+    return `/img/uploads/${filename}`; // ruta para usar en tu app
+}
+
 async function upload_image_to_space(filePath, objectName) {
     //THIS IS FOR WHEN THE APPLICATION IS FOR DESKTOP
-   const currentPath = path.basename(filePath);
-   return path.join('/img/uploads', currentPath);
+    const currentPath = path.basename(filePath);
+    return path.join('/img/uploads', currentPath);
 
     /*
     const fileContent = fs.readFileSync(filePath);
@@ -83,7 +106,7 @@ async function delete_image_upload(pathImg) {
     */
 
     //THIS IS FOR WHEN THE WEB IS IN A SERVER
-    var pathImage = path.join(__dirname, '../public',pathImg); //path.join(__dirname, '../public/img/uploads', pathImg);
+    var pathImage = path.join(__dirname, '../public', pathImg); //path.join(__dirname, '../public/img/uploads', pathImg);
     fs.unlink(pathImage, (error) => {
         if (error) {
             console.error('Error to delate image:', error);
@@ -214,6 +237,17 @@ async function create_a_new_image(req) {
 
         return imageUrl;
     }
+
+    if (req.body.imageUrl && req.body.imageUrl.startsWith('http')) {
+        const url = req.body.imageUrl.trim();
+        const cleanUrl = url.split('?')[0]; // ✅ eliminamos los parámetros
+        const extension = path.extname(cleanUrl) || '.jpg'; // por si no tiene extensión
+        const filename = Date.now() + extension;
+        const imageUrl = await downloadImageFromUrl(url, filename);
+        return imageUrl;
+    }
+
+
     return '';
 }
 
@@ -228,7 +262,7 @@ async function get_image(id) {
 router.post('/fud/:id_company/edit-company', async (req, res) => {
     const { id_company } = req.params;
     const newCompany = await get_new_company(req);
-    const {id_branch}=req.body;
+    const { id_branch } = req.body;
 
     //we will waching if exist a new icon for the company 
     if (newCompany.path_logo != "") {
@@ -244,9 +278,9 @@ router.post('/fud/:id_company/edit-company', async (req, res) => {
     }
 
     //we will see if the user have a subscription to ONE or is the CEO
-    if(id_branch){
+    if (id_branch) {
         res.redirect(`/links/${id_company}/${id_branch}/options`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/options`);
     }
 });
@@ -254,8 +288,8 @@ router.post('/fud/:id_company/edit-company', async (req, res) => {
 
 //add department
 router.post('/fud/:id/add-department', async (req, res) => {
-    const {id}=req.params;
-    const {name}=req.body;
+    const { id } = req.params;
+    const { name } = req.body;
     if (!await this_department_exists(req, name)) {
         const newDepartment = get_new_department(req);
         if (await addDatabase.add_product_department(newDepartment)) {
@@ -270,10 +304,10 @@ router.post('/fud/:id/add-department', async (req, res) => {
     }
 
     //we will see if the user is in a version of fud one 
-    if(req.user.rol_user==rolFree){
-        const {id_branch}=req.body;
+    if (req.user.rol_user == rolFree) {
+        const { id_branch } = req.body;
         res.redirect(`/links/${id}/${id_branch}/food-department-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id}/food-department`);
     }
 });
@@ -307,9 +341,9 @@ async function this_department_exists(req, name) {
 
 //add category
 router.post('/fud/:id/add-category', async (req, res) => {
-    const {id}=req.params;
-    const {name}=req.body;
-    
+    const { id } = req.params;
+    const { name } = req.body;
+
     if (!await this_category_exists(req, name)) {
         const newDepartment = get_new_category(req);
         if (await addDatabase.add_product_category(newDepartment)) {
@@ -324,10 +358,10 @@ router.post('/fud/:id/add-category', async (req, res) => {
     }
 
     //we will see if the user is in a version of fud one 
-    if(req.user.rol_user==rolFree){
-        const {id_branch}=req.body;
+    if (req.user.rol_user == rolFree) {
+        const { id_branch } = req.body;
         res.redirect(`/links/${id}/${id_branch}/food-area-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id}/food-department`);
     }
 });
@@ -435,7 +469,7 @@ router.post('/fud/:id_company/add-company-combo', async (req, res) => {
 
         //get the new combo
         const combo = await create_a_new_combo(req)
-        
+
         //we will see if can add the combo to the database
         const idCombos = await addDatabase.add_combo_company(combo)
 
@@ -457,12 +491,12 @@ router.post('/fud/:id_company/add-company-combo', async (req, res) => {
             const idComboFacture = await addDatabase.add_combo_branch(comboData);
 
             //we will see if can save the combo in the branch
-            if(idComboFacture){
+            if (idComboFacture) {
                 req.flash('success', 'El combo fue creado con exito ❤️')
                 res.redirect('/links/' + id_company + '/' + idBranch + '/' + idComboFacture + '/edit-combo-free');
-            }else{
+            } else {
                 req.flash('message', 'El combo no fue agregado intentalo de nuevo 😅')
-                res.redirect('/links/' + id_company + '/' + idBranch  + '/add-combos-free');
+                res.redirect('/links/' + id_company + '/' + idBranch + '/add-combos-free');
             }
         }
     }
@@ -490,7 +524,7 @@ async function create_a_new_combo(req) {
 
 function parse_barcode_products(barcodeProducts) {
     //her is for know if exist barcodeProducts in the form 
-    if(!barcodeProducts){
+    if (!barcodeProducts) {
         return [];
     }
 
@@ -524,7 +558,7 @@ function parse_barcode_products(barcodeProducts) {
             result.push({ idProduct: idProduct, amount: amount, foodWaste: foodWaste, unity: unity, additional: additional });
         }
     }
-    
+
     return result;
 }
 
@@ -545,7 +579,7 @@ function create_combo_data_branch(idCombo, idCompany, id_branch) {
 //edit combo 
 router.post('/fud/:id_company/:id_combo/edit-combo-company', isLoggedIn, async (req, res) => {
     const { id_company, id_combo } = req.params;
-    const { barcodeProducts} = req.body;
+    const { barcodeProducts } = req.body;
 
     //we will see if the user add a product or supplies 
     if (barcodeProducts == '') {
@@ -566,15 +600,15 @@ router.post('/fud/:id_company/:id_combo/edit-combo-company', isLoggedIn, async (
         else {
             req.flash('message', 'El combo no fue actualizado con éxito 😳')
         }
-        
+
         //we will see if the user have the pack free 
-        if(req.user.rol_user!=rolFree){
+        if (req.user.rol_user != rolFree) {
             //if the user have a rol of admin send to combo company
             res.redirect('/links/' + id_company + '/combos');
-        }else{
+        } else {
             //if the user have a count free, get the branch id for redirect to the user 
-            const { id_branch} = req.body;
-            res.redirect('/links/'+id_company+'/'+id_branch+'/combos-free');
+            const { id_branch } = req.body;
+            res.redirect('/links/' + id_company + '/' + id_branch + '/combos-free');
         }
     }
 })
@@ -639,19 +673,19 @@ router.post('/fud/:id_company/:id/edit-supplies-form', isLoggedIn, async (req, r
     }
 
     //we will see if the user have a suscription for fud one 
-    if (req.user.rol_user==rolFree){
-        const { id_branch} = req.body; //get the id branch
+    if (req.user.rol_user == rolFree) {
+        const { id_branch } = req.body; //get the id branch
         res.redirect(`/links/${id_company}/${id_branch}/supplies-free`);
-    }    
-    else{
+    }
+    else {
         //rederict the object for the that be 
         if (thisIsASupplies) {
             res.redirect('/links/' + id_company + '/company-supplies');
         }
         else {
             res.redirect('/links/' + id_company + '/company-products');
-        }        
-    }  
+        }
+    }
 })
 
 
@@ -882,7 +916,7 @@ router.post('/fud/:id_branch/:id_company/edit-branch', isLoggedIn, async (req, r
     const { id_company, id_branch } = req.params;
     //we will watching if this subscription exist in my database 
     const { idSubscription } = req.body;
-    if(req.user.rol_user==rolFree){
+    if (req.user.rol_user == rolFree) {
         const newBranch = create_new_branch(req);
         if (await update.update_branch(id_branch, newBranch)) {
             req.flash('success', 'La sucursal fue actualizada con exito 😊')
@@ -893,7 +927,7 @@ router.post('/fud/:id_branch/:id_company/edit-branch', isLoggedIn, async (req, r
 
         res.redirect('/links/home')
         //res.redirect(`/links/${id_company}/${id_branch}/edit-branch-free`);
-    }else{
+    } else {
         if (!await this_subscription_exist_with_my_branch(idSubscription, id_branch)) {
             //if this subscription was used, show a message of error 
             req.flash('message', 'Esta suscripción ya fue utilizada 😮');
@@ -912,7 +946,7 @@ router.post('/fud/:id_branch/:id_company/edit-branch', isLoggedIn, async (req, r
                 req.flash('message', 'Ocurrio un error con el servidor, vuelve a intentarlo 👉👈')
             }
         }
-        
+
         res.redirect(`/links/${id_company}/branches`);
     }
 })
@@ -938,7 +972,7 @@ async function this_subscription_exist_with_my_branch(idSubscription, id_branch)
 
 function create_new_branch(req) {
     const { id_company } = req.params;
-    const { name, alias, representative, phone, cell_phone, email, municipality, city, cologne, street, num_o, num_i, postal_code, token_uber_eat} = req.body;
+    const { name, alias, representative, phone, cell_phone, email, municipality, city, cologne, street, num_o, num_i, postal_code, token_uber_eat } = req.body;
     const newBranch = {
         id_company: id_company,
         name,
@@ -976,7 +1010,7 @@ router.post('/fud/:id_company/addCustomer', isLoggedIn, async (req, res) => {
 
 router.post('/fud/:id_company/:id_customer/editCustomer', isLoggedIn, async (req, res) => {
     const { id_company, id_customer } = req.params;
-    const {id_branch}=req.body;
+    const { id_branch } = req.body;
 
     const newCustomer = create_new_customer(req);
     if (await update.update_customer(id_customer, newCustomer)) {
@@ -987,9 +1021,9 @@ router.post('/fud/:id_company/:id_customer/editCustomer', isLoggedIn, async (req
     }
 
     //we will see if the user have a UI CEO or Branch
-    if(id_branch){
+    if (id_branch) {
         res.redirect(`/links/${id_company}/${id_branch}/customers-company`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/customers-company`);
     }
 })
@@ -997,8 +1031,8 @@ router.post('/fud/:id_company/:id_customer/editCustomer', isLoggedIn, async (req
 function create_new_customer(req) {
     const { id_company } = req.params;
     const { firstName, secondName, lastName, cellPhone, phone, email, states, city, street, num_o, num_i, postal_code, birthday,
-        userType, company_name, company_address, website, contact_name, company_cellphone, company_phone, 
-     } = req.body
+        userType, company_name, company_address, website, contact_name, company_cellphone, company_phone,
+    } = req.body
 
     const newCustomer = {
         id_company,
@@ -1018,11 +1052,11 @@ function create_new_customer(req) {
         points: 0,
         birthday: birthday || null,  // If birthday is empty, assign null; otherwise, use the provided value
         userType,
-        company_name, 
-        company_address, 
-        website, 
-        contact_name, 
-        company_cellphone, 
+        company_name,
+        company_address,
+        website,
+        contact_name,
+        company_cellphone,
         company_phone
     }
 
@@ -1041,10 +1075,10 @@ router.post('/fud/:id_company/add-department-employees', isLoggedIn, async (req,
     }
 
     //we will see if the user have the subscription to fud one 
-    if(req.user.rol_user==rolFree){
+    if (req.user.rol_user == rolFree) {
         const { id_branch } = req.body;
         res.redirect(`/links/${id_company}/${id_branch}/employee-department`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/employee-department`);
     }
 })
@@ -1078,10 +1112,10 @@ router.post('/fud/:id_company/add-type-employees', isLoggedIn, async (req, res) 
     }
 
     //we will see if the user have a subscription to fud one 
-    if(req.user.rol_user==rolFree){
-        const id_branch  = req.user.id_branch;
+    if (req.user.rol_user == rolFree) {
+        const id_branch = req.user.id_branch;
         res.redirect(`/links/${id_company}/${id_branch}/type-employees-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/type-user`);
     }
 })
@@ -1217,7 +1251,7 @@ function create_type_employee2(id_company, req) {
         watch_permission(req.body.viewInventory),
         watch_permission(req.body.editInventory),
 
-        
+
         watch_permission(req.body.edit_employee_department),
         watch_permission(req.body.delete_employee_department),
         watch_permission(req.body.edit_rol_employee),
@@ -1238,7 +1272,7 @@ const getRoleColumns = async () => {
     return result.rows.map(row => row.column_name).filter(col => col !== 'id'); // Excluye el ID
 };
 
-async function create_type_employee(id_company,req) {
+async function create_type_employee(id_company, req) {
     const columns = await getRoleColumns();
     const newRole = {};
 
@@ -1282,10 +1316,10 @@ router.post('/fud/:id_company/:id_role/edit-role-employees', isLoggedIn, async (
     }
 
     //we will see if the user have the subscription a fud one
-    if(req.user.rol_user==rolFree){
-        const id_branch  = req.user.id_branch;
+    if (req.user.rol_user == rolFree) {
+        const id_branch = req.user.id_branch;
         res.redirect(`/links/${id_company}/${id_branch}/type-employees-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/type-user`);
     }
 })
@@ -1503,12 +1537,12 @@ function new_data_employee(req) {
 //---------------------------------------------------------------------------------------------------------OPTIONS---------------------------------------------------------------
 router.post('/fud/:id_company/:id_branch/change-navbar', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.params;
-    const {navbar}=req.body;
+    const { navbar } = req.body;
 
     //we will see if can update the navbar
-    if(await update_navbar(id_company, navbar)){
+    if (await update_navbar(id_company, navbar)) {
         req.flash('success', '¡La interfaz de usuario fue actualizada con éxito! 🤗')
-    }else{
+    } else {
         req.flash('message', 'La interfaz de usuario no fue actualizada 👉👈');
     }
 
@@ -1517,12 +1551,12 @@ router.post('/fud/:id_company/:id_branch/change-navbar', isLoggedIn, async (req,
 
 router.post('/fud/:id_company/change-navbar', isLoggedIn, async (req, res) => {
     const { id_company } = req.params;
-    const {navbar}=req.body;
+    const { navbar } = req.body;
 
     //we will see if can update the navbar
-    if(await update_navbar(id_company, navbar)){
+    if (await update_navbar(id_company, navbar)) {
         req.flash('success', 'La barra de tarreas fue actualizada con éxito! 🤗')
-    }else{
+    } else {
         req.flash('message', 'La barra de tarreas no fue actualizada 👉👈');
     }
 
@@ -1584,7 +1618,7 @@ const XLSX = require('xlsx');
 
 
 router.post('/links/:id_company/:id_branch/upload-products', async (req, res) => {
-    const {id_company, id_branch } = req.params;
+    const { id_company, id_branch } = req.params;
 
     //get the file excle and save the file in the folder upload
     const filePath = req.file.path;
@@ -1602,8 +1636,8 @@ router.post('/links/:id_company/:id_branch/upload-products', async (req, res) =>
 
     //we will see if exist all the column need for create the new product
     const requiredColumns = [
-        "Barcode", "Producto", "Description",'Precio','Cantidad','UsaInventario','EsUnInsumo',
-        'MontoDeCompra','UnidadDeCompra','PrecioDeCompra','MontoDeVenta','UnidadDeVenta','InventarioMáximo','InventarioMínimo','UnidadDeMedida'
+        "Barcode", "Producto", "Description", 'Precio', 'Cantidad', 'UsaInventario', 'EsUnInsumo',
+        'MontoDeCompra', 'UnidadDeCompra', 'PrecioDeCompra', 'MontoDeVenta', 'UnidadDeVenta', 'InventarioMáximo', 'InventarioMínimo', 'UnidadDeMedida'
     ];
     const fileColumns = Object.keys(products[0]); // get the key of the first object 
 
@@ -1619,55 +1653,55 @@ router.post('/links/:id_company/:id_branch/upload-products', async (req, res) =>
         return res.redirect(`/links/${id_company}/${id_branch}/upload-products`);
     }
 
-    let canAdd=true;
-    let productsThatNoWasAdd='';
+    let canAdd = true;
+    let productsThatNoWasAdd = '';
 
     //we will read all the products that is in the file
-    for (const product of products){
+    for (const product of products) {
         //get all the data of the product
-        const barcode=product.Barcode;
-        const name=product.Producto;
-        const description=product.Description;
-        const use_inventory=product.UsaInventario;
-        const this_is_a_supplies=product.EsUnInsumo;
-        const newProducts=create_new_product_with_excel(id_company, barcode, name, description, use_inventory, this_is_a_supplies);
+        const barcode = product.Barcode;
+        const name = product.Producto;
+        const description = product.Description;
+        const use_inventory = product.UsaInventario;
+        const this_is_a_supplies = product.EsUnInsumo;
+        const newProducts = create_new_product_with_excel(id_company, barcode, name, description, use_inventory, this_is_a_supplies);
         const idSupplies = await addDatabase.add_supplies_company(newProducts);
 
         //we will see if the product can be save in the database
         if (idSupplies) {
             //get the data of the combo in the file excel 
-            const purchase_amount=product.MontoDeCompra;
-            const purchase_unity=product.UnidadDeCompra;
-            const purchase_price=product.PrecioDeCompra;
+            const purchase_amount = product.MontoDeCompra;
+            const purchase_unity = product.UnidadDeCompra;
+            const purchase_price = product.PrecioDeCompra;
 
-            const sale_amount=product.MontoDeVenta;
-            const sale_unity=product.UnidadDeVenta;
-            const sale_price=product.Precio;
+            const sale_amount = product.MontoDeVenta;
+            const sale_unity = product.UnidadDeVenta;
+            const sale_price = product.Precio;
 
-            const max_inventory=product.InventarioMáximo;
-            const minimum_inventory=product.InventarioMínimo;
-            const unit_inventory=product.UnidadDeMedida;
-            const existence=product.Cantidad;
+            const max_inventory = product.InventarioMáximo;
+            const minimum_inventory = product.InventarioMínimo;
+            const unit_inventory = product.UnidadDeMedida;
+            const existence = product.Cantidad;
 
             //we will create the supplies in the branch
             const idSuppliesFactures = await addDatabase.add_product_and_suppiles_features(id_branch, idSupplies) //add the supplies in the branch 
 
             //we will watch if not can added the supplies in the branch 
-            if(idSuppliesFactures==null){
+            if (idSuppliesFactures == null) {
                 //if we not can added the supplies in the branch, we will to delete the supplies of the company for avoid mistakes
                 await delete_supplies_company(idSupplies);
-            }else{
+            } else {
                 //we will creating the data of the supplies and we will saving with the id of the supplies that create
-                const supplies = create_supplies_branch_with_excel(purchase_amount,purchase_unity,purchase_price,sale_amount,sale_unity,sale_price,max_inventory,minimum_inventory,unit_inventory,existence,idSuppliesFactures);
-                
+                const supplies = create_supplies_branch_with_excel(purchase_amount, purchase_unity, purchase_price, sale_amount, sale_unity, sale_price, max_inventory, minimum_inventory, unit_inventory, existence, idSuppliesFactures);
+
                 //update the data in the branch for save the new product in his branch
-                if (await update.update_supplies_branch(supplies)){
+                if (await update.update_supplies_branch(supplies)) {
 
                     //get the new combo
-                    const combo = create_a_new_combo_with_excel(id_company,barcode,name,description);
-                    const dataProduct={idProduct:idSupplies,amount: 1,foodWaste: supplies.sale_amount,unity: supplies.sale_unity,additional: 0}
+                    const combo = create_a_new_combo_with_excel(id_company, barcode, name, description);
+                    const dataProduct = { idProduct: idSupplies, amount: 1, foodWaste: supplies.sale_amount, unity: supplies.sale_unity, additional: 0 }
                     combo.supplies.push(dataProduct); //update the data of supplies use only the barcode of the product
-                    
+
                     //we will see if can add the combo to the database
                     const idCombos = await addDatabase.add_product_combo_company(combo);
 
@@ -1676,35 +1710,35 @@ router.post('/links/:id_company/:id_branch/upload-products', async (req, res) =>
 
                     // save the combo in the branch
                     const idComboFacture = await addDatabase.add_combo_branch(comboData);
-                    if(!idComboFacture){
+                    if (!idComboFacture) {
                         await delete_all_supplies_combo(idCombos);
                         await delete_product_combo_company(idCombos);
                         await delete_product_and_suppiles_features(idSuppliesFactures);
                         await delete_supplies_company(idSupplies);
 
-                        canAdd=false;
-                        productsThatNoWasAdd+=name+',';
-                    }else{
+                        canAdd = false;
+                        productsThatNoWasAdd += name + ',';
+                    } else {
                         //if we can added the combo to the branch, update the price of the combo
-                        await update_price_combo_for_excel(sale_price,idComboFacture)
+                        await update_price_combo_for_excel(sale_price, idComboFacture)
                     }
-                }else{
+                } else {
                     //if we not can update the supplies in the branch, we will delete the supplis in the branch and in the company
                     await delete_product_and_suppiles_features(idSuppliesFactures);
                     await delete_supplies_company(idSupplies);
                 }
             }
-        }else{
-            productsThatNoWasAdd+=name+',';
-            canAdd=false;
+        } else {
+            productsThatNoWasAdd += name + ',';
+            canAdd = false;
         }
 
     };
 
     //we will see if can save all the products 
-    if(canAdd){
+    if (canAdd) {
         req.flash('success', 'Productos subidos con éxito 😉');
-    }else{
+    } else {
         req.flash('message', `Ocurrio un error al momento de cargar los siguientes productos:  ${productsThatNoWasAdd}. Tal vez su barcode y nombres ya existen en la base de datos 😬.`);
     }
 
@@ -1731,7 +1765,7 @@ function create_new_product_with_excel(id_company, barcode, name, description, u
     return supplies;
 }
 
-function create_supplies_branch_with_excel(purchase_amount,purchase_unity,purchase_price,sale_amount,sale_unity,sale_price,max_inventory,minimum_inventory,unit_inventory,existence,id_supplies) {
+function create_supplies_branch_with_excel(purchase_amount, purchase_unity, purchase_price, sale_amount, sale_unity, sale_price, max_inventory, minimum_inventory, unit_inventory, existence, id_supplies) {
     const supplies = {
         purchase_amount: string_to_float(purchase_amount),
         purchase_unity,
@@ -1740,7 +1774,7 @@ function create_supplies_branch_with_excel(purchase_amount,purchase_unity,purcha
         sale_amount: string_to_float(sale_amount),
         sale_unity,
         sale_price: string_to_float(sale_price),
-        currency_sale:'MXN',
+        currency_sale: 'MXN',
         max_inventory: string_to_float(max_inventory),
         minimum_inventory: string_to_float(minimum_inventory),
         unit_inventory,
@@ -1751,22 +1785,22 @@ function create_supplies_branch_with_excel(purchase_amount,purchase_unity,purcha
     return supplies;
 }
 
-function create_a_new_combo_with_excel(id_company,barcode,name,description) {
+function create_a_new_combo_with_excel(id_company, barcode, name, description) {
     const combo = {
         id_company: id_company,
-        path_image:'',
+        path_image: '',
         barcode,
         name,
         description,
         id_product_department: '',
         id_product_category: '',
-        supplies:[]
+        supplies: []
     }
 
     return combo;
 }
 
-async function update_price_combo_for_excel(newPrice, id){
+async function update_price_combo_for_excel(newPrice, id) {
     const queryText = `
         UPDATE "Inventory".dish_and_combo_features 
         SET price_1 = $1 
@@ -1824,15 +1858,15 @@ async function delete_product_combo_company(id) {
 //----
 router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.params;
-    let canAdd=false;
+    let canAdd = false;
 
     //this is for create the new supplies and save the id of the supplies
     const newSupplies = await get_supplies_or_product_company(req, false);
     console.log(newSupplies)
-    newSupplies.id_company=id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
+    newSupplies.id_company = id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
 
     const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
-    
+
     //we will see if the product can be save in the database
     if (idSupplies) {
         //we will create the supplies in the branch
@@ -1840,17 +1874,17 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
 
         //we will creating the data of the supplies and we will saving with the id of the supplies that create
         const supplies = create_supplies_branch(req, idSuppliesFactures);
-        
+
         //update the data in the branch for save the new product in his branch
-        if (await update.update_supplies_branch(supplies)){
+        if (await update.update_supplies_branch(supplies)) {
 
             //get the new combo
             const combo = await create_a_new_combo(req);
             console.log(combo)
 
-            const dataProduct={idProduct:idSupplies,amount: 1,foodWaste: supplies.sale_amount,unity: supplies.sale_unity,additional: 0}
+            const dataProduct = { idProduct: idSupplies, amount: 1, foodWaste: supplies.sale_amount, unity: supplies.sale_unity, additional: 0 }
             combo.supplies.push(dataProduct); //update the data of supplies use only the barcode of the product
-            
+
             //we will see if can add the combo to the database
             const idCombos = await addDatabase.add_product_combo_company(combo)
 
@@ -1862,7 +1896,7 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
                 else {
                     req.flash('message', 'El combo no fue agregado con éxito 😳')
                 }
-                
+
                 //if the user have a franquicia we will save the combo in the company
                 res.redirect('/links/' + id_company + '/combos');
             } else {
@@ -1871,9 +1905,9 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
 
                 // save the combo in the branch
                 const idComboFacture = await addDatabase.add_combo_branch(comboData);
-                if(idComboFacture){
-                    canAdd=true;
-                    await update_price_combo_for_excel(supplies.sale_price,idComboFacture);
+                if (idComboFacture) {
+                    canAdd = true;
+                    await update_price_combo_for_excel(supplies.sale_price, idComboFacture);
                     res.redirect(`/links/${id_company}/${id_branch}/${idComboFacture}/edit-products-free`);
                 }
             }
@@ -1882,7 +1916,7 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
 
 
     //we will see if exit a error in the process
-    if(!canAdd){
+    if (!canAdd) {
         req.flash('message', 'El producto no fue agregado con éxito 👉👈')
         res.redirect(`/links/${id_company}/${id_branch}/products-free`);
     }
@@ -1890,15 +1924,15 @@ router.post('/fud/:id_company/:id_branch/add-product-free', isLoggedIn, async (r
 
 router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.params;
-    let canAdd=false;
+    let canAdd = false;
 
     //this is for create the new supplies and save the id of the supplies
     const newSupplies = await get_supplies_or_product_company(req, false);
     console.log(newSupplies)
-    newSupplies.id_company=id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
+    newSupplies.id_company = id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
 
     const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
-    
+
     //we will see if the product can be save in the database
     if (idSupplies) {
         //we will create the supplies in the branch
@@ -1906,17 +1940,17 @@ router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, as
 
         //we will creating the data of the supplies and we will saving with the id of the supplies that create
         const supplies = create_supplies_branch(req, idSuppliesFactures);
-        
+
         //update the data in the branch for save the new product in his branch
-        if (await update.update_supplies_branch(supplies)){
+        if (await update.update_supplies_branch(supplies)) {
 
             //get the new combo
             const combo = await create_a_new_combo(req);
             console.log(combo)
 
-            const dataProduct={idProduct:idSupplies,amount: 1,foodWaste: supplies.sale_amount,unity: supplies.sale_unity,additional: 0}
+            const dataProduct = { idProduct: idSupplies, amount: 1, foodWaste: supplies.sale_amount, unity: supplies.sale_unity, additional: 0 }
             combo.supplies.push(dataProduct); //update the data of supplies use only the barcode of the product
-            
+
             //we will see if can add the combo to the database
             const idCombos = await addDatabase.add_product_combo_company(combo)
 
@@ -1928,7 +1962,7 @@ router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, as
                 else {
                     req.flash('message', 'El combo no fue agregado con éxito 😳')
                 }
-                
+
                 //if the user have a franquicia we will save the combo in the company
                 res.redirect('/links/' + id_company + '/combos');
             } else {
@@ -1937,9 +1971,9 @@ router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, as
 
                 // save the combo in the branch
                 const idComboFacture = await addDatabase.add_combo_branch(comboData);
-                if(idComboFacture){
-                    canAdd=true;
-                    await update_price_combo_for_excel(supplies.sale_price,idComboFacture);
+                if (idComboFacture) {
+                    canAdd = true;
+                    await update_price_combo_for_excel(supplies.sale_price, idComboFacture);
                     req.flash('success', 'El producto fue agregado con éxito ❤️')
                     res.redirect(`/links/${id_company}/${id_branch}/products-free`);
                 }
@@ -1949,22 +1983,89 @@ router.post('/fud/:id_company/:id_branch/add-product-free-speed', isLoggedIn, as
 
 
     //we will see if exit a error in the process
-    if(!canAdd){
+    if (!canAdd) {
         req.flash('message', 'El producto no fue agregado con éxito 👉👈')
         res.redirect(`/links/${id_company}/${id_branch}/products-free`);
     }
 })
 
+router.post('/links/add_new_product_with_flask', isLoggedIn, async (req, res) => {
+    const { id_company, id_branch } = req.user;
+    let canAdd = false;
+
+    //this is for create the new supplies and save the id of the supplies
+    const newSupplies = await get_supplies_or_product_company(req, false);
+    newSupplies.id_company = id_company; //update the data of id_company because the function "get_supplies_or_product_company" not have this data,
+
+    const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
+
+    //we will see if the product can be save in the database
+    if (idSupplies) {
+        //we will create the supplies in the branch
+        const idSuppliesFactures = await addDatabase.add_product_and_suppiles_features(id_branch, idSupplies) //add the supplies in the branch 
+
+        //we will creating the data of the supplies and we will saving with the id of the supplies that create
+        const supplies = create_supplies_branch(req, idSuppliesFactures);
+
+        //update the data in the branch for save the new product in his branch
+        if (await update.update_supplies_branch(supplies)) {
+
+            //get the new combo
+            const combo = await create_a_new_combo(req);
+
+            const dataProduct = { idProduct: idSupplies, amount: 1, foodWaste: supplies.sale_amount, unity: supplies.sale_unity, additional: 0 }
+            combo.supplies.push(dataProduct); //update the data of supplies use only the barcode of the product
+
+            //we will see if can add the combo to the database
+            const idCombos = await addDatabase.add_product_combo_company(combo)
+
+            //we will wach if the user have a branch free or a franquicia
+            if (req.user.rol_user != rolFree) {
+                if (idCombos) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            } else {
+                //get the data combo in the branch
+                const comboData = create_combo_data_branch(idCombos, id_company, id_branch);
+
+                // save the combo in the branch
+                const idComboFacture = await addDatabase.add_combo_branch(comboData);
+                if (idComboFacture) {
+                    canAdd = true;
+                    await update_price_combo_for_excel(supplies.sale_price, idComboFacture);
+                }
+            }
+        }
+    }
+
+
+    //we will see if exit a error in the process
+    if (!canAdd) {
+        return res.status(400).json({
+            message: 'El producto no fue agregado con éxito 👉👈',
+            code:false
+        });
+    }else{
+        return res.status(200).json({
+            message: 'El producto fue agregado con éxito ❤️',
+            code:true
+        });
+    }
+})
+
 router.post('/fud/:id_company/:id_branch/:id_combo/update-product-branch', isLoggedIn, async (req, res) => {
-    const {id_company,id_branch,id_combo}=req.params;
-    const {name,barcode,description}=req.body;
+    const { id_company, id_branch, id_combo } = req.params;
+    const { name, barcode, description } = req.body;
     console.log(req.body)
 
 
     //get the id of the supplies and of the combo for edit his data in the company
-    const idSuppliesCompany=req.body.id_products_and_supplies;
-    const idComboCompany=req.body.id_dishes_and_combos;
-    
+    const idSuppliesCompany = req.body.id_products_and_supplies;
+    const idComboCompany = req.body.id_dishes_and_combos;
+
     //we will to see if the user add a name and a barcode to the product
     if (barcode == "") {
         req.flash('message', '👁️ Necesitas agregar un código de barras a tus suministros');
@@ -1978,27 +2079,27 @@ router.post('/fud/:id_company/:id_branch/:id_combo/update-product-branch', isLog
     if (barcode != "" && name != "") {
         //this is when the user would like edit the supplies in the company. Not all the user can do this only the user Plus One
         newSupplies = await get_new_data_supplies_img_company(req);
-    }else{
+    } else {
         //if the user not add a barcode and no name, we will send to the page of edit
         return res.redirect(`/links/${id_company}/${id_branch}/${id_combo}/edit-products-free`);
     }
 
-    let canUpdateAllTheProduct=false; //this is for know if we can update all the container
+    let canUpdateAllTheProduct = false; //this is for know if we can update all the container
 
     //we will see if the after create also the imagen when update the supplies 
     let image;
-    if(newSupplies.path_image!=''){
-        image=newSupplies.path_image;
-    }else{
+    if (newSupplies.path_image != '') {
+        image = newSupplies.path_image;
+    } else {
         //we will see if exist a new image 
         image = await create_a_new_image(req);
     }
- 
+
     //we will creating the new supplies and we will saving the id of the supplies
     const supplies = create_supplies_branch(req, req.body.id_productFacture);
 
     //when the user update the supplies of the branch, also update the supplies of the company 
-    newSupplies.id=idSuppliesCompany; //complete the information of the supplies company
+    newSupplies.id = idSuppliesCompany; //complete the information of the supplies company
     await update_supplies_company(newSupplies);
 
     //we will watching if the supplies can update 
@@ -2006,43 +2107,43 @@ router.post('/fud/:id_company/:id_branch/:id_combo/update-product-branch', isLog
         //when the supplies is updating, we will create the new combo for update 
         const combo = create_new_combo_branch(req, id_combo);
         if (await update.update_combo_branch(combo)) {
-            canUpdateAllTheProduct=true;
-        } 
+            canUpdateAllTheProduct = true;
+        }
     }
 
     //this is for update if the product is in inventory or not is in inventory
-    await update_product_in_inventory(idSuppliesCompany,req.body.inventory);
+    await update_product_in_inventory(idSuppliesCompany, req.body.inventory);
 
     //if exist a new image, we will update the imagen of the combo and of the supplies 
-    if(image.trim() != ""){
+    if (image.trim() != "") {
         //get the path image of the combo and of the image, if not exist, we not do nathing 
-        var path_photo=await get_data_photo(idComboCompany);
-        if (path_photo!=null){
+        var path_photo = await get_data_photo(idComboCompany);
+        if (path_photo != null) {
             //if exist a imagen, we will delete 
             await delete_image_upload(path_photo);
         }
 
-        await update_combo_image(idComboCompany,image);
-        await update_supplies_image(idSuppliesCompany,image);
+        await update_combo_image(idComboCompany, image);
+        await update_supplies_image(idSuppliesCompany, image);
     }
 
-    await update_other_information_of_combo(req,idComboCompany);
-    
+    await update_other_information_of_combo(req, idComboCompany);
+
     //update the combo of the company
-    const thisProductIsSoldInBulk=req.body.thisProductIsSoldInBulk; //get is the product is sold in bulk
-    await update_information_combo_product(name,barcode,description,thisProductIsSoldInBulk,idComboCompany);
-    
+    const thisProductIsSoldInBulk = req.body.thisProductIsSoldInBulk; //get is the product is sold in bulk
+    await update_information_combo_product(name, barcode, description, thisProductIsSoldInBulk, idComboCompany);
+
     //we will see if can update all the product or exist a error for try again
-    if(canUpdateAllTheProduct){
+    if (canUpdateAllTheProduct) {
         req.flash('success', 'El Producto se actualizó con éxito 😄');
         res.redirect(`/links/${id_company}/${id_branch}/products-free`);
-    }else{
+    } else {
         req.flash('message', 'El Producto no se actualizo 😳');
         res.redirect(`/links/${id_company}/${id_branch}/${id_combo}/edit-products-free`);
     }
 })
 
-async function create_a_new_products(req,path_image) {
+async function create_a_new_products(req, path_image) {
     const { barcode, name, description, barcodeProducts } = req.body;
     const { id_company } = req.params;
 
@@ -2069,8 +2170,8 @@ async function update_product_in_inventory(id_product, inventory) {
     WHERE 
         id=$2
     `;
-    var answer=(inventory === 'on');
-    var values = [answer,id_product];
+    var answer = (inventory === 'on');
+    var values = [answer, id_product];
     const result = await database.query(queryText, values);
     const data = result.rows;
     return data;
@@ -2095,7 +2196,7 @@ async function get_data_photo(id_combo) {
     }
 }
 
-async function update_other_information_of_combo(req,id_combo){
+async function update_other_information_of_combo(req, id_combo) {
     var queryText = `
     UPDATE "Kitchen".dishes_and_combos
     SET 
@@ -2109,14 +2210,14 @@ async function update_other_information_of_combo(req,id_combo){
     const this_product_need_recipe = req.body.this_product_need_recipe === 'on' || req.body.this_product_need_recipe === 'true';
     const id_product_department = req.body.department;
     const id_product_category = req.body.category;
-    var values = [this_product_need_recipe,id_product_department,id_product_category,id_combo];
+    var values = [this_product_need_recipe, id_product_department, id_product_category, id_combo];
     const result = await database.query(queryText, values);
     const data = result.rows;
     return data;
 }
 
 
-async function update_combo_image(id_combo,image){
+async function update_combo_image(id_combo, image) {
     var queryText = `
     UPDATE "Kitchen".dishes_and_combos
     SET 
@@ -2125,13 +2226,13 @@ async function update_combo_image(id_combo,image){
         id=$2
     `;
 
-    var values = [image,id_combo];
+    var values = [image, id_combo];
     const result = await database.query(queryText, values);
     const data = result.rows;
     return data;
 }
 
-async function update_information_combo_product(name,barcode,description,thisProductIsSoldInBulk,id_combo){
+async function update_information_combo_product(name, barcode, description, thisProductIsSoldInBulk, id_combo) {
     var queryText = `
     UPDATE "Kitchen".dishes_and_combos
     SET 
@@ -2143,14 +2244,14 @@ async function update_information_combo_product(name,barcode,description,thisPro
         id=$5
     `;
 
-    var values = [name,barcode,description,thisProductIsSoldInBulk,id_combo];
+    var values = [name, barcode, description, thisProductIsSoldInBulk, id_combo];
     const result = await database.query(queryText, values);
     const data = result.rows;
     return data;
 }
 
 
-async function update_supplies_image(id_supplies,image){
+async function update_supplies_image(id_supplies, image) {
     var queryText = `
     UPDATE "Kitchen".products_and_supplies
     SET 
@@ -2159,7 +2260,7 @@ async function update_supplies_image(id_supplies,image){
         id=$2
     `;
 
-    var values = [image,id_supplies];
+    var values = [image, id_supplies];
     const result = await database.query(queryText, values);
     const data = result.rows;
     return data;
@@ -2175,34 +2276,34 @@ router.post('/fud/:id/:id_branch/add-supplies-free', isLoggedIn, async (req, res
     //we will see if the user can add most supplies 
     //const allSupplies = await get_all_the_supplies_of_this_company(id, true);
     //if (allSupplies < get_supplies_max(packDatabase)) {
-        //we will waching if the supplies can save the image 
-        if (packDatabase == 0) {
-            req.file = null;
-        }
+    //we will waching if the supplies can save the image 
+    if (packDatabase == 0) {
+        req.file = null;
+    }
 
-        //this is for create the new supplies and save the id of the supplies
-        const newSupplies = await get_supplies_or_product_company(req, true);
-        const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
-        if (idSupplies) {
-            //we will create the supplies in the branch
-            const idSuppliesFactures = await addDatabase.add_product_and_suppiles_features(id_branch, idSupplies) //add the supplies in the branch 
+    //this is for create the new supplies and save the id of the supplies
+    const newSupplies = await get_supplies_or_product_company(req, true);
+    const idSupplies = await addDatabase.add_supplies_company(newSupplies); //get the id of the supplies that added
+    if (idSupplies) {
+        //we will create the supplies in the branch
+        const idSuppliesFactures = await addDatabase.add_product_and_suppiles_features(id_branch, idSupplies) //add the supplies in the branch 
 
-            //we will creating the data of the supplies and we will saving with the id of the supplies that create
-            const supplies = create_supplies_branch(req, idSuppliesFactures);
+        //we will creating the data of the supplies and we will saving with the id of the supplies that create
+        const supplies = create_supplies_branch(req, idSuppliesFactures);
 
-            //update the data in the branch
-            if (await update.update_supplies_branch(supplies)) {
-                req.flash('success', 'El insumo fue agregado con éxito! 👍')
-            }
-            else {
-                req.flash('message', 'El insumo no fue agregado 👉👈');
-            }
+        //update the data in the branch
+        if (await update.update_supplies_branch(supplies)) {
+            req.flash('success', 'El insumo fue agregado con éxito! 👍')
         }
         else {
-            req.flash('message', 'El insumo no fue agregado con éxito 👉👈')
+            req.flash('message', 'El insumo no fue agregado 👉👈');
         }
+    }
+    else {
+        req.flash('message', 'El insumo no fue agregado con éxito 👉👈')
+    }
     //} else {
-        //req.flash('message', 'El insumo no fue agregado porque necesitas actualizar tu version de base de datos 👉👈')
+    //req.flash('message', 'El insumo no fue agregado porque necesitas actualizar tu version de base de datos 👉👈')
     //}
 
 
@@ -2304,9 +2405,9 @@ router.post('/fud/:id_company/:id_branch/add-providers', isLoggedIn, async (req,
 
 
     //we will see if the user is use ed one 
-    if(req.user.rol_user==rolFree){
+    if (req.user.rol_user == rolFree) {
         res.redirect(`/links/${id_company}/${id_branch}/providers-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/${id_branch}/providers`);
     }
 })
@@ -2324,9 +2425,9 @@ router.post('/fud/:id_company/:id_branch/:id_provider/edit-providers-branch', is
     }
 
     //we will see if the user is use ed one 
-    if(req.user.rol_user==rolFree){
+    if (req.user.rol_user == rolFree) {
         res.redirect(`/links/${id_company}/${id_branch}/providers-free`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/${id_branch}/providers`);
     }
 })
@@ -2353,7 +2454,7 @@ router.post('/fud/:id_company/:id_branch/:id_combo/update-combo-branch', isLogge
     const { id_company, id_combo, id_branch } = req.params;
     const combo = create_new_combo_branch(req, id_combo);
 
-    
+
     if (await update.update_combo_branch(combo)) {
         req.flash('success', 'El combo se actualizó con éxito 😄');
     } else {
@@ -2672,14 +2773,14 @@ router.post('/fud/car-post', isLoggedIn, async (req, res) => {
     var commander = ''
     var text = ''
 
-    const idCompany=req.user.id_company;
-    const idEmployee=req.user.id_employee;
-    const idBranch=req.user.id_branch;
-    
+    const idCompany = req.user.id_company;
+    const idEmployee = req.user.id_employee;
+    const idBranch = req.user.id_branch;
+
     try {
         //get the data of the server
         const products = req.body.products;
-        
+
         //we will seeing if can create all the combo of the car
         text = await watch_if_can_create_all_the_combo(products);
 
@@ -2690,44 +2791,44 @@ router.post('/fud/car-post', isLoggedIn, async (req, res) => {
             //get the day of sale
             const day = new Date();
 
-            const commanderDish=[]
+            const commanderDish = []
             for (const product of products) {
-                
-                const nameProduct=product.name;
-                const priceProduct=product.name;
-                const amount=product.quantity;
-                const totalPrice=product.price*product.quantity;
+
+                const nameProduct = product.name;
+                const priceProduct = product.name;
+                const amount = product.quantity;
+                const totalPrice = product.price * product.quantity;
                 commanderDish.push({
-                    nameProduct, 
-                    priceProduct, 
-                    amount, 
-                    totalPrice 
+                    nameProduct,
+                    priceProduct,
+                    amount,
+                    totalPrice
                 });
 
                 //save the buy in the database
-                await addDatabase.add_buy_history(idCompany, idBranch, idEmployee, id_customer, product.id_dishes_and_combos,product.price,product.quantity,totalPrice,day);
+                await addDatabase.add_buy_history(idCompany, idBranch, idEmployee, id_customer, product.id_dishes_and_combos, product.price, product.quantity, totalPrice, day);
                 await save_box_history(idEmployee, id_customer, req.body.cash, req.body.credit, req.body.debit, req.body.comment, day, req.body.change);
             }
 
             //save the comander
-            commander=create_commander(idBranch, idEmployee, id_customer, commanderDish, req.body.total, req.body.moneyReceived, req.body.change, req.body.comment, day);
-            text=await addDatabase.add_commanders(commander); //save the id commander
+            commander = create_commander(idBranch, idEmployee, id_customer, commanderDish, req.body.total, req.body.moneyReceived, req.body.change, req.body.comment, day);
+            text = await addDatabase.add_commanders(commander); //save the id commander
         }
 
         //send an answer to the customer
-        res.status(200).json({ message: text});
+        res.status(200).json({ message: text });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Hubo un error al procesar la solicitud' });
     }
 })
 
-async function save_box_history(idEmployee, id_customer,cash, credit, debit, comment, day, change) {
+async function save_box_history(idEmployee, id_customer, cash, credit, debit, comment, day, change) {
     const idCustomerParam = id_customer === "null" ? null : id_customer;
 
     //this is for that the format is a number
     const parseToFloat = (value) => {
-        if (value === null || value === undefined || value === '') return 0; 
+        if (value === null || value === undefined || value === '') return 0;
         return parseFloat(value) || 0;
     };
 
@@ -2744,7 +2845,7 @@ async function save_box_history(idEmployee, id_customer,cash, credit, debit, com
     `;
 
     try {
-        await database.query(queryText, [idEmployee, idCustomerParam,cash, credit, debit, comment, day, change]);
+        await database.query(queryText, [idEmployee, idCustomerParam, cash, credit, debit, comment, day, change]);
     } catch (error) {
         console.error('Error save_box_history in file addFrom:', error);
     }
@@ -2793,16 +2894,16 @@ function create_commander(id_branch, id_employee, id_customer, commanderDish, to
 //this is for save the recipe of the product that need recipe
 router.post('/fud/recipe-post', isLoggedIn, async (req, res) => {
     //get the data of the user
-    const idCompany=req.user.id_company;
-    const idEmployee=req.user.id_employee;
-    const idBranch=req.user.id_branch;
+    const idCompany = req.user.id_company;
+    const idEmployee = req.user.id_employee;
+    const idBranch = req.user.id_branch;
     const information_of_recipe = req.body;
 
     //her we will read all the recipe and we will save in the database
     for (let recipe of information_of_recipe) {
         try {
             await addDatabase.add_recipe(idCompany, idBranch, idEmployee, recipe);
-            res.status(200).json({ message: true});
+            res.status(200).json({ message: true });
         } catch (error) {
             console.error('Error:', error);
             res.status(500).json({ error: 'Hubo un error al procesar la solicitud' });
@@ -2923,10 +3024,10 @@ router.post('/fud/car-customer-post', async (req, res) => {
 
         //we will seeing if can create all the combo of the car
         text = await watch_if_can_create_all_the_combo(combos);
-       
+
         //if can buy this combos, we going to add this buy to the database 
         if (text == 'success') {
-            const id_customer  = null;
+            const id_customer = null;
             const id_employee = null;
             const day = new Date();
 
@@ -3014,7 +3115,7 @@ async function watch_if_can_create_all_the_combo(combos) {
     // Iterate through all the combos
     var arrayCombo = await get_all_supplies_of_the_combos(combos)
     var listSupplies = calculate_the_supplies_that_need(arrayCombo);
-    
+
     //we will to calculate if have the supplies need for create all the combos that the customer would like eat
     const answer = await exist_the_supplies_need_for_creat_all_the_combos(listSupplies);
     if (answer == true) {
@@ -3024,7 +3125,7 @@ async function watch_if_can_create_all_the_combo(combos) {
             if the supplies is equal to a empty space, this means that the products not use inventrory, else if exist a name
             the producuts if use inventory
             */
-            if(supplies.name!=''){
+            if (supplies.name != '') {
                 //get the data feature of the supplies and his existence 
                 const dataSuppliesFeactures = await get_data_supplies_features(supplies.idBranch, supplies.idSupplies)
 
@@ -3048,7 +3149,7 @@ async function get_all_supplies_of_the_combos(combos) {
         const amountCombo = combo.quantity;
         const dataComboFeatures = await get_data_combo_features(combo.id_dishes_and_combos);
 
-        
+
         if (dataComboFeatures != null) {
             //get the supplies that need this combo for his creation
             const supplies = await get_all_supplies_this_combo(dataComboFeatures, amountCombo);
@@ -3066,7 +3167,7 @@ async function exist_the_supplies_need_for_creat_all_the_combos(listSupplies) {
         if the supplies is equal to a empty space, this means that the products not use inventrory, else if exist a name
         the producuts if use inventory
         */
-        if(supplies.name!=''){
+        if (supplies.name != '') {
             if (!await exist_supplies_for_create_this_combo(supplies.idBranch, supplies.idSupplies, supplies.amount)) {
                 //if there are not enough supplies, we will send the supplies that need buy the restaurant 
                 return supplies.name;
@@ -3152,7 +3253,7 @@ async function get_all_price_supplies_branch(idCombo, idBranch) {
         `;
         const comboValues = [idCombo];
         const comboResult = await database.query(comboQuery, comboValues);
-        
+
         // Consulta para obtener el precio de los suministros en la sucursal específica
         const priceQuery = `
             SELECT psf.id_products_and_supplies, psf.sale_price, psf.sale_unity
@@ -3205,7 +3306,7 @@ async function get_all_price_supplies_branch(idCombo, idBranch) {
 
 function calculate_the_supplies_that_need(arrayCombo) {
     var listSupplies = [] //this list is for save all the supplies for that do not repeat
-    
+
     //we will to read all the combos of the array 
     for (const combo of arrayCombo) {
         //this for read all the supplies of the combo current
@@ -3274,7 +3375,7 @@ async function exist_supplies_for_create_this_combo(idBranch, idSupplies, amount
         const dataSuppliesFeactures = await get_data_supplies_features(idBranch, idSupplies)
         const existence = dataSuppliesFeactures.existence;
         const minimumInventory = dataSuppliesFeactures.minimum_inventory;
-        
+
         //we will calculate if can create the combo
         return (existence - amount >= 0);
     } catch (error) {
@@ -3331,9 +3432,9 @@ router.post('/fud/add-order-post', async (req, res) => {
 
 router.post('/fud/:id_company/:id_branch/edit-order', async (req, res) => {
     const { id_company, id_branch } = req.params;
-    const { customer_name, address, cellphone, phone, comment, id_order} = req.body;
+    const { customer_name, address, cellphone, phone, comment, id_order } = req.body;
     const { delivery_driver } = req.body;
-    const {statusOrder} =req.body;
+    const { statusOrder } = req.body;
     if (await update_rder(id_order, customer_name, address, cellphone, phone, delivery_driver, comment, statusOrder)) {
         req.flash('success', 'El pedido fue actualizado con exito 🥳');
     } else {
@@ -3343,9 +3444,9 @@ router.post('/fud/:id_company/:id_branch/edit-order', async (req, res) => {
 });
 
 router.post('/fud/edit-order', async (req, res) => {
-    const { customer_name, address, cellphone, phone, comment, id_order} = req.body;
+    const { customer_name, address, cellphone, phone, comment, id_order } = req.body;
     const { delivery_driver } = req.body;
-    const {statusOrder} =req.body;
+    const { statusOrder } = req.body;
     console.log(statusOrder)
     if (await update_rder(id_order, customer_name, address, cellphone, phone, delivery_driver, comment, statusOrder)) {
         req.flash('success', 'El pedido fue actualizado con exito 🥳');
@@ -3356,7 +3457,7 @@ router.post('/fud/edit-order', async (req, res) => {
     res.redirect(`/fud/my-order`)
 });
 
-async function update_rder(id_order, name_customer, address, cellphone, phone, id_employees, comment,status) {
+async function update_rder(id_order, name_customer, address, cellphone, phone, id_employees, comment, status) {
     try {
         const queryText = `
             UPDATE "Branch".order
@@ -3409,15 +3510,15 @@ async function delete_order_by_id(id_order) {
 
 //-------------------------------------------------------customer branch or One
 router.post('/fud/:id_company/:id_branch/addCustomer', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch} = req.params;
+    const { id_company, id_branch } = req.params;
     const newCustomer = create_new_customer(req);
 
     //we will see if the customer exist in the database 
-    if(await addDatabase.this_customer_exists(newCustomer.id_company,newCustomer.email)){
+    if (await addDatabase.this_customer_exists(newCustomer.id_company, newCustomer.email)) {
         req.flash('message', 'Este correo electrónico ya está registrado 😬')
         res.redirect(`/links/${id_company}/${id_branch}/add-customer`);
     }
-    else{
+    else {
         //we will see if can added the new customer to the database
         if (await addDatabase.add_customer(newCustomer)) {
             req.flash('success', 'El clienta fue agregada con exito ❤️')
@@ -3449,9 +3550,9 @@ const {
 } = require('../services/CRM');
 
 router.post('/fud/:id_company/add-table-crm', isLoggedIn, async (req, res) => {
-    const { id_company} = req.params;
-    const {table_name, id_branch} = req.body;
-    const salesStage={
+    const { id_company } = req.params;
+    const { table_name, id_branch } = req.body;
+    const salesStage = {
         id_company,
         table_name
     }
@@ -3465,18 +3566,18 @@ router.post('/fud/:id_company/add-table-crm', isLoggedIn, async (req, res) => {
     }
 
     //we will see if the user have the subscription ONE or is in a branch
-    if(id_branch){
+    if (id_branch) {
         res.redirect(`/links/${id_company}/${id_branch}/CRM`);
-    }else{
+    } else {
         res.redirect(`/links/${id_company}/CRM`);
     }
 })
 
 router.get('/fud/:id_company/:id_branch/:id_sales_stage/delete-table-crm', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_sales_stage} = req.params;
-    
+    const { id_company, id_branch, id_sales_stage } = req.params;
+
     //we will see if can added the new sales stage to the database
-    if(await delete_sale_stage_in_my_company(id_sales_stage)){
+    if (await delete_sale_stage_in_my_company(id_sales_stage)) {
         req.flash('success', 'La etapa de venta fue eliminada con éxito 😊')
     }
     else {
@@ -3487,40 +3588,40 @@ router.get('/fud/:id_company/:id_branch/:id_sales_stage/delete-table-crm', isLog
 })
 
 router.post('/fud/update-stage-columns', isLoggedIn, async (req, res) => {
-    const { order,ids, dataTanks, dataProspects} = req.body;
+    const { order, ids, dataTanks, dataProspects } = req.body;
 
-    let answer=true;
+    let answer = true;
 
     //this is for update the columns 
-    for(var i=0;i<=ids.length;i++){
-        const id=ids[i];
-        const newName=order[i];
+    for (var i = 0; i <= ids.length; i++) {
+        const id = ids[i];
+        const newName = order[i];
 
         //we will see if can update all the position and the name of stage
-        if(!await update_position_stage(id,newName,i)){
-            answer=false;
+        if (!await update_position_stage(id, newName, i)) {
+            answer = false;
             break;
         }
     }
 
     //this is for update the prospects 
-    for(var j=0;j<dataProspects.length;j++){
-        const prospect=dataProspects[j]
-        if(!await update_task(prospect[0],prospect[1])){
-            answer=false;
+    for (var j = 0; j < dataProspects.length; j++) {
+        const prospect = dataProspects[j]
+        if (!await update_task(prospect[0], prospect[1])) {
+            answer = false;
             break;
         }
     }
 
     //we will see if can update all the data in the columsn and the thanks
-    if(answer){
+    if (answer) {
         res.json({ success: true, message: 'Orden actualizada correctamente' });
-    }else{
+    } else {
         res.json({ success: false, message: 'Error al actualizar Orden' });
     }
 })
 
-async function update_position_stage(id,name,position){
+async function update_position_stage(id, name, position) {
     const queryText = `
     UPDATE "CRM".sales_stage
     SET 
@@ -3543,7 +3644,7 @@ async function update_position_stage(id,name,position){
     }
 }
 
-async function update_task(idTask,idColumn){
+async function update_task(idTask, idColumn) {
     const queryText = `
     UPDATE "CRM".prospects
     SET 
@@ -3566,10 +3667,10 @@ async function update_task(idTask,idColumn){
 }
 
 router.post('/fud/:id_company/:id_branch/add-chance', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch} = req.params;
-    if(await addDatabase.add_new_prospects(req.body)){
+    const { id_company, id_branch } = req.params;
+    if (await addDatabase.add_new_prospects(req.body)) {
         req.flash('success', 'La oportunidad de venta fue agregada con éxito ❤️');
-    }else{
+    } else {
         req.flash('message', 'La oportunidad de venta no fue agregada 👉👈');
     }
 
@@ -3578,12 +3679,12 @@ router.post('/fud/:id_company/:id_branch/add-chance', isLoggedIn, async (req, re
 
 
 router.post('/fud/:id_company/:id_branch/:id_prospect/update-prospect', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_prospect} = req.params;
+    const { id_company, id_branch, id_prospect } = req.params;
 
     //we will see if fan update the prospect
-    if(await update_prospect(req.body,id_prospect)){
+    if (await update_prospect(req.body, id_prospect)) {
         req.flash('success', 'La oportunidad de venta fue actualizada con éxito ❤️');
-    }else{
+    } else {
         req.flash('message', 'La oportunidad de venta no fue actualizada 😮');
     }
 
@@ -3592,18 +3693,18 @@ router.post('/fud/:id_company/:id_branch/:id_prospect/update-prospect', isLogged
 
 
 router.post('/fud/update-prospect', isLoggedIn, async (req, res) => {
-    const { formData, linkData} = req.body;
-    const form=formData;
+    const { formData, linkData } = req.body;
+    const form = formData;
 
     //we will see if fan update the prospect
-    if(await update_prospect(form,linkData.id_form)){
+    if (await update_prospect(form, linkData.id_form)) {
         res.status(200).json({ message: 'La oportunidad de venta fue actualizada con éxito ❤️' }); // Return data to the client
-    }else{
+    } else {
         res.status(200).json({ message: 'La oportunidad de venta no fue actualizada 😮' }); // Return data to the client
     }
 })
 
-async function update_prospect(prospects, id_prospect){
+async function update_prospect(prospects, id_prospect) {
     const queryText = `
         UPDATE "CRM".prospects
         SET 
@@ -3641,8 +3742,8 @@ async function update_prospect(prospects, id_prospect){
         prospects.company_cellphone,  // $25
         prospects.company_phone,      // $26
         id_prospect
-      ];
-    try{
+    ];
+    try {
         await database.query(queryText, values);
         return true;
     } catch (error) {
@@ -3652,55 +3753,55 @@ async function update_prospect(prospects, id_prospect){
 }
 
 router.post('/fud/:id_company/:id_branch/:id_prospect/create-message-history', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_prospect} = req.params;
-    const { formData, linkData} = req.body;
-    const form=formData;
-    
+    const { id_company, id_branch, id_prospect } = req.params;
+    const { formData, linkData } = req.body;
+    const form = formData;
+
     //we will see if fan update the prospect
-    if(await addDatabase.add_message_to_the_customer_history(req.user.id,id_prospect,form.comment,form.link)){
+    if (await addDatabase.add_message_to_the_customer_history(req.user.id, id_prospect, form.comment, form.link)) {
         res.status(200).json({ message: 'La Nota de venta fue agregada con éxito ❤️' }); // Return data to the client
-    }else{
+    } else {
         res.status(200).json({ message: 'La Nota de venta no fue agregada 😮' }); // Return data to the client
     }
 })
 
 //-----------------------------------------------appointment
 router.post('/fud/:id_company/:id_branch/:id_prospect/create-appointment-server', isLoggedIn, async (req, res) => {
-    const {id_company, id_branch, id_prospect} = req.params;
-    const {formData}=req.body;
+    const { id_company, id_branch, id_prospect } = req.params;
+    const { formData } = req.body;
 
     //we will create the appointment
-    const appointment=create_appointment(id_company, id_branch,id_prospect,formData)
+    const appointment = create_appointment(id_company, id_branch, id_prospect, formData)
 
     //we will see if we could add the appointment
-    if(await addDatabase.add_appointment(appointment)){
+    if (await addDatabase.add_appointment(appointment)) {
         //this is for save the update of the customer
-        await addDatabase.add_message_to_the_customer_history(req.user.id,id_prospect,`Se creó una cita con el cliente para el día ${appointment.date}`,'');
+        await addDatabase.add_message_to_the_customer_history(req.user.id, id_prospect, `Se creó una cita con el cliente para el día ${appointment.date}`, '');
         res.status(200).json({ message: 'La cita se reservó con éxito ❤️' }); // Return data to the client
-    }else{
+    } else {
         res.status(400).json({ message: 'La cita no se reservó 😳' }); // Return data to the client
     }
 })
 
 router.post('/fud/:id_company/:id_branch/:id_prospect/create-appointment', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_prospect} = req.params;
+    const { id_company, id_branch, id_prospect } = req.params;
 
     //we will create the appointment
-    const appointment=create_appointment(id_company, id_branch,id_prospect,req.body)
+    const appointment = create_appointment(id_company, id_branch, id_prospect, req.body)
 
     //we will see if we could add the appointment
-    if(await addDatabase.add_appointment(appointment)){
+    if (await addDatabase.add_appointment(appointment)) {
         req.flash('success', 'La cita se reservó con éxito ❤️');
-    }else{
+    } else {
         req.flash('message', 'La cita no se reservó 😳');
     }
 
     res.redirect(`/links/${id_company}/${id_branch}/CRM`);
 })
 
-function create_appointment(id_company, id_branch,id_prospect,body){
-    const appointment={
-        id_company, 
+function create_appointment(id_company, id_branch, id_prospect, body) {
+    const appointment = {
+        id_company,
         id_branch,
         id_prospect,
         id_employee: body.idEmployee,
@@ -3709,22 +3810,22 @@ function create_appointment(id_company, id_branch,id_prospect,body){
         duration: body.duration,
         ubication: body.ubication,
         notes: body.notes,
-        color:body.color
+        color: body.color
     }
 
     return appointment;
 }
 
 router.post('/fud/:id_company/:id_branch/:id_prospect/:id_appointment/edit-appointment', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_prospect, id_appointment} = req.params;
+    const { id_company, id_branch, id_prospect, id_appointment } = req.params;
 
     //we will create the appointment
-    const appointment=create_appointment(id_company, id_branch,id_prospect,req)
+    const appointment = create_appointment(id_company, id_branch, id_prospect, req)
     console.log(appointment)
     //we will see if we could add the appointment
-    if(await update_appointment(appointment,id_appointment)){
+    if (await update_appointment(appointment, id_appointment)) {
         req.flash('success', 'La cita se actualizo con éxito ❤️');
-    }else{
+    } else {
         req.flash('message', 'La cita no se actualizo 😳');
     }
 
@@ -3732,22 +3833,22 @@ router.post('/fud/:id_company/:id_branch/:id_prospect/:id_appointment/edit-appoi
 })
 
 router.post('/fud/:id_company/:id_branch/:id_prospect/:id_appointment/edit-appointment-crm', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch, id_prospect, id_appointment} = req.params;
+    const { id_company, id_branch, id_prospect, id_appointment } = req.params;
 
     //we will create the appointment
-    const appointment=create_appointment(id_company, id_branch,id_prospect,req)
+    const appointment = create_appointment(id_company, id_branch, id_prospect, req)
 
     //we will see if we could add the appointment
-    if(await update_appointment(appointment,id_appointment)){
+    if (await update_appointment(appointment, id_appointment)) {
         req.flash('success', 'La cita se actualizo con éxito ❤️');
-    }else{
+    } else {
         req.flash('message', 'La cita no se actualizo 😳');
     }
 
     res.redirect(`/links/${id_company}/${id_branch}/CRM`);
 })
 
-async function update_appointment(appointment, id_appointment){
+async function update_appointment(appointment, id_appointment) {
     const queryText = `
         UPDATE "CRM".appointment
         SET 
@@ -3766,9 +3867,9 @@ async function update_appointment(appointment, id_appointment){
         appointment.notes,
         appointment.color,
         id_appointment
-      ];
+    ];
 
-    try{
+    try {
         await database.query(queryText, values);
         return true;
     } catch (error) {
@@ -3787,20 +3888,20 @@ const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex'); //use the
 const IV = crypto.randomBytes(16); // 16 bytes para AES
 
 function encryptPassword(password) {
-  const cipher = crypto.createCipheriv('aes-256-cbc', ENCRYPTION_KEY, IV);
-  let encrypted = cipher.update(password, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return {
-    iv: IV.toString('hex'),
-    encryptedData: encrypted
-  };
+    const cipher = crypto.createCipheriv('aes-256-cbc', ENCRYPTION_KEY, IV);
+    let encrypted = cipher.update(password, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return {
+        iv: IV.toString('hex'),
+        encryptedData: encrypted
+    };
 }
 
 function decryptPassword(encryptedData, iv) {
-  const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, Buffer.from(iv, 'hex'));
-  let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+    const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, Buffer.from(iv, 'hex'));
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
 }
 
 router.post('/links/update_session_prontipagos', isLoggedIn, async (req, res) => {
@@ -3811,25 +3912,25 @@ router.post('/links/update_session_prontipagos', isLoggedIn, async (req, res) =>
         }
 
         //first we will see if this count exist in the database of prontipagos
-        const answerServerPreontipagos=await loginProntipagos(user, password);
-        if(answerServerPreontipagos==null){
+        const answerServerPreontipagos = await loginProntipagos(user, password);
+        if (answerServerPreontipagos == null) {
             return res.status(400).json({ error: "Hubo un error con los servidores de prontipagos vuelve a intentarlo mas tarde." });
-        }else if(!answerServerPreontipagos){
+        } else if (!answerServerPreontipagos) {
             return res.status(400).json({ error: "Usuario o contraseña incorrectos." });
         }
 
 
 
         //we will get the 
-        const id_branch=req.user.id_branch;
+        const id_branch = req.user.id_branch;
 
-        const newPassword=encryptPassword(password); // Encriptar la contraseña
+        const newPassword = encryptPassword(password); // Encriptar la contraseña
 
         //we will see if can save this data in the database
-        if(await update_session_prontipagos(id_branch, user, newPassword.encryptedData, newPassword.iv)){
-            res.json({ message: "Cuenta activada correctamente -> "+user});
+        if (await update_session_prontipagos(id_branch, user, newPassword.encryptedData, newPassword.iv)) {
+            res.json({ message: "Cuenta activada correctamente -> " + user });
         }
-        else{
+        else {
             return res.status(400).json({ error: "Error al guardar tus datos en la base de datos. Intentalo de nuevo." });
         }
     } catch (error) {
@@ -3843,18 +3944,18 @@ router.post('/links/decryptPassword_of_prontipagos', isLoggedIn, async (req, res
         const { encryptedData, iv } = req.body;
 
         if (!encryptedData || !iv) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Los campos 'encryptedData' e 'iv' son obligatorios." 
+            return res.status(400).json({
+                success: false,
+                message: "Los campos 'encryptedData' e 'iv' son obligatorios."
             });
         }
 
         const password = decryptPassword(encryptedData, iv);
 
         if (!password) {
-            return res.status(500).json({ 
-                success: false, 
-                message: "No se pudo desencriptar la contraseña." 
+            return res.status(500).json({
+                success: false,
+                message: "No se pudo desencriptar la contraseña."
             });
         }
 
@@ -3866,7 +3967,7 @@ router.post('/links/decryptPassword_of_prontipagos', isLoggedIn, async (req, res
 
     } catch (error) {
         console.error("Error en decryptPassword_of_prontipagos:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: "Ocurrió un error al desencriptar la contraseña.",
             error: error.message
@@ -3898,8 +3999,8 @@ async function loginProntipagos(user, password) {
         }
 
         const data = await response.json();
-        console.log("Login response:", data.code==0);
-        return data.code==0;
+        console.log("Login response:", data.code == 0);
+        return data.code == 0;
 
     } catch (error) {
         console.error("Error al hacer login:", error);
@@ -3936,7 +4037,7 @@ async function update_session_prontipagos(id_branch, user, password, iv) {
 router.post('/links/save_label', isLoggedIn, async (req, res) => {
     //we will see if the user have the permission for this App.
     const { id_company, id_branch } = req.user;
-    if(!this_user_have_this_permission(req.user,id_company, id_branch,'add_label')){
+    if (!this_user_have_this_permission(req.user, id_company, id_branch, 'add_label')) {
         res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
     }
 
@@ -3954,10 +4055,10 @@ router.post('/links/save_label', isLoggedIn, async (req, res) => {
         };
 
         const insertedId = await insert_label(newLabel);
-        if(insertedId){
+        if (insertedId) {
             res.json({ message: "Etiqueta guardada correctamente", id: insertedId });
         }
-        else{
+        else {
             res.status(500).json({ error: "No se pudo guardar la etiqueta" });
         }
     } catch (error) {
@@ -3998,7 +4099,7 @@ async function insert_label(label) {
 
 router.post('/links/delete_label', isLoggedIn, async (req, res) => {
     const { id_company, id_branch } = req.user;
-    if(!this_user_have_this_permission(req.user,id_company, id_branch,'delete_label')){
+    if (!this_user_have_this_permission(req.user, id_company, id_branch, 'delete_label')) {
         res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
     }
 
@@ -4037,7 +4138,7 @@ async function delete_label_by_id(id) {
 
 router.post('/links/update-labels/:id', async (req, res) => {
     const { id_company, id_branch } = req.user;
-    if(!this_user_have_this_permission(req.user,id_company, id_branch,'edit_label')){
+    if (!this_user_have_this_permission(req.user, id_company, id_branch, 'edit_label')) {
         res.status(500).json({ error: "Lo siento, no tienes permiso para esta acción 😅" });
     }
 
@@ -4073,6 +4174,331 @@ async function update_label(id, name, width, length, labelJson) {
 }
 
 
+//-----------------------------------------------------------------------------------notifications----------------------------------------------------
+router.post('/links/update_notification', async (req, res) => {
+    const { id_company, id_branch } = req.user;
+    const data=req.body;
+
+    if (await update_data_notification_of_the_branch(id_branch,data)){
+        res.status(200).json({ status:true, message: "Datos actualizados correctamente" });
+    }else{
+        console.error('Error updating notification data:', error);
+        return res.status(500).json({ success: false, error: 'Error al actualizar los datos de la notificación' });
+    }
+});
+
+async function update_data_notification_of_the_branch(id_branch, data) {
+    const fields = Object.keys(data);
+    const values = Object.values(data);
+
+    // Agregamos id_branch al final
+    values.push(id_branch);
+
+    // Generar SET dinámico: campo1 = $1, campo2 = $2, ...
+    const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(', ');
+
+    const queryText = `
+        UPDATE "Company".branches
+        SET ${setClause}
+        WHERE id = $${fields.length + 1}
+    `;
+
+    try {
+        await database.query(queryText, values);
+        return true;
+    } catch (error) {
+        console.error('Error updating branch data:', error);
+        return false;
+    }
+}
+
+
+const nodemailer = require('nodemailer'); //this is for send emails 
+router.post('/links/notification/cash-cut', async (req, res) => {
+    const { id_company, id_branch } = req.user;
+    const data=req.body;
+    const {emailNotification,tokenEmailNotification,toNotification, message}=req.body
+    await send_email(emailNotification,tokenEmailNotification,toNotification, 'Corte de caja', message)
+    return res.status(500).json({ success: false, error: 'Error al actualizar los datos de la notificación' });
+});
+
+async function send_email(APP_EMAIL_EMAIL,APP_PASSWORD_EMAIL,toEmail, subjectEmail, message) {
+
+    //this is for email google
+    const transport = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            user: APP_EMAIL_EMAIL,
+            pass: APP_PASSWORD_EMAIL
+        }
+    });
+
+    //we will to create the content of the message 
+    const mailOptions = {
+        from: 'Plus Notificaciones 🚀',
+        to: toEmail,
+        subject: subjectEmail,
+        html: message
+    };
+
+    //send 
+    transport.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error al enviar el correo electrónico:', error);
+        } else {
+            console.log('Correo electrónico enviado:', info.response);
+        }
+    });
+
+    return true;
+}
+//-----------------------------------------------------------------------------------Prontipagos------------------------------------------------------
+const fetch = require('node-fetch');
+//const helpers=require('../lib/helpers.js');
+const urlProntipagos='https://prontipagos-api-dev.domainscm.com'
+//-----this is for do a sale in prontipagos
+router.post('/links/send_information_to_prontipagos', async (req, res) => {
+
+    const { amount, reference, sku, company, moneyReceived, changeOFTheBuy } = req.body;
+    
+    //we will see if the user do a valid request
+    if (!amount || !reference) {
+        return res.status(400).json({ status: false, message: 'Faltan campos obligatorios' });
+    }
+
+    //now we will create the payload to send to prontipagos
+    let payload = {
+        sku,
+        amount,
+        reference,
+        transacctionId:0
+    };
+
+    //this is for save in the database of PLUS
+    let service = {
+        sku,
+        moneyReceived,
+        company,
+        change: changeOFTheBuy,
+        amount
+    }
+
+    //if the sku have onlye numbers, we will convert in a string empty (this is for service like telcel)
+    if (/^\d+$/.test(sku)) {
+        //when the sku is only numbers, we will set the sku to empty string, not is necessary to send the sku to prontipagos (this is for telcel)
+        payload = {
+            amount,
+            reference,
+            transacctionId: 0
+        };
+
+        service.sku='';
+    }
+
+    //we will insert the service in the database of PLUS
+    const id_customer = '';
+    const transacctionId = await insert_reachange_service(req.user.id_company, req.user.id_branch, req.user.id, id_customer, service);
+
+    //her we will see if we could insert the service in the database
+    if (!transacctionId) {
+        return res.status(500).json({ status: false, message: 'Error al insertar el servicio. Intentalo otra vez.' });
+    }
+
+    //if we could insert the service, we will add the transacctionId to the payload fot send to prontipagos
+    payload.transacctionId = transacctionId;    
+
+
+    try {
+        const url = `${urlProntipagos}/prontipagos-external-api-ws/ws/protected/v1/sell/product`;
+
+        //first we will get the password and user of prontipagos use the id of the branch
+        const id_branch = req.user.id_branch;
+        const token = await get_token_prontipagos(id_branch); //create the token for the prontipagos API
+
+        //send the message to the server of prontipagos
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        //we will see if the response is ok
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+
+            //this is when the request not is ok, we will delete this sale of the database of PLUS
+            if(data.code !== 0) {
+                await delete_reachange_service(transacctionId);
+            }
+
+            res.json(data);
+        } else {
+            const rawText = await response.text();
+            console.log('Respuesta no JSON de Prontipagos:', rawText);
+            res.status(500).json({
+                status: false,
+                message: 'La API no devolvió un JSON',
+                raw: rawText
+            });
+
+            await delete_reachange_service(transacctionId); //this is for delete the service in the database of PLUS
+        }
+
+    } catch (error) {
+        console.log('Error al enviar a Prontipagos:', error);
+        await delete_reachange_service(transacctionId);
+        res.status(500).json({
+            status: false,
+            message: `Error al enviar a Prontipagos: ${error.message}`
+        });
+    }
+});
+
+async function insert_reachange_service(id_company, id_branch, id_employee, id_customer, service) {
+    const queryText = `
+        INSERT INTO "Box".reachange_services 
+        (id_companies, id_branches, id_employees, id_customers, key_services, money_received, service_name, change, service_money)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id;
+    `;
+
+    const values = [
+        id_company,
+        id_branch,
+        id_employee,
+        id_customer === '' ? null : parseInt(id_customer),
+        service.sku,
+        service.moneyReceived,
+        service.company,
+        service.change === '' ? null : parseFloat(service.change),
+        service.amount
+    ];
+
+    try {
+        const result = await database.query(queryText, values);
+        return result.rows[0].id; // Devuelve el ID insertado
+    } catch (error) {
+        console.error('Error al insertar reachange_service:', error);
+        return false;
+    }
+}
+
+async function delete_reachange_service(id) {
+    if (!id) return false;
+
+    const queryText = `
+        DELETE FROM "Box".reachange_services
+        WHERE id = $1
+        RETURNING id;
+    `;
+
+    try {
+        const result = await database.query(queryText, [id]);
+        return result.rowCount > 0; // true si eliminó, false si no
+    } catch (error) {
+        console.error('Error al eliminar reachange_service:', error);
+        return false;
+    }
+}
+
+//-----this is get the status of the sale in prontipagos
+router.post('/links/get_status_sale_in_prontipagos/:transaction_id', async (req, res) => {
+    const { transaction_id } = req.params;
+    try {
+        const url = `${urlProntipagos}/prontipagos-external-api-ws/ws/protected/v1/check-status?transactionId=${transaction_id}`;
+
+        //first we will get the password and user of prontipagos use the id of the branch
+        const id_branch = req.user.id_branch;
+        const token = await get_token_prontipagos(id_branch); //create the token for the prontipagos API
+
+        //send the message to the server of prontipagos
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        res.status(200).json({status:true,dataServer:data});
+        console.log('Respuesta de Prontipagos:', data);
+    } catch (error) {
+        console.log('Error al enviar a Prontipagos:', error);
+        res.status(500).json({
+            status: false,
+            message: `Error al enviar a Prontipagos: ${error.message}`
+        });
+    }
+});
+
+
+
+
+
+
+
+async function get_token_prontipagos(id_branch) {
+    const getBranch=await get_data_branch(id_branch); //get the data of the branch 
+    const dataBranch = getBranch[0]; // Import the database connection
+
+    const username=dataBranch.user_prontipagos; //get the user of prontipagos
+    const password = decryptPassword(dataBranch.password_prontipagos, dataBranch.iv_for_password);  //check if the user is correct
+
+    try {
+        const response = await fetch(`https://prontipagos-api-dev.domainscm.com/prontipagos-external-api-ws/ws/v1/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (data.code === 0 && data.payload?.accessToken) {
+            return data.payload.accessToken;
+        } else {
+            throw new Error("Error al obtener el token: " + JSON.stringify(data));
+        }
+    } catch (error) {
+        throw new Error("Fallo en la solicitud del token: " + error.message);
+    }
+}
+
+async function get_password(encryptedPassword,iv){
+    try {
+        const response = await fetch('http://localhost:3000/links/decryptPassword_of_prontipagos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                encryptedData: encryptedPassword,
+                iv: iv
+            })
+        });
+
+        const result = await response.json();
+        console.log("Resultado de desencriptación:", result);
+        if (result.success) {
+            return result.password;
+        } else {
+            console.error("Error al desencriptar:", result.message);
+        }
+
+    } catch (error) {
+        console.error("Error de red o servidor:", error);
+    }
+}
+
+
 
 //-----------------------------------------------apps
 const {
@@ -4082,14 +4508,14 @@ const {
 
 
 router.post('/fud/:id_company/:id_branch/create-app', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch} = req.params;
-    const answer=req.body;
-    const app=create_constructor_app(id_company,id_branch,answer)
+    const { id_company, id_branch } = req.params;
+    const answer = req.body;
+    const app = create_constructor_app(id_company, id_branch, answer)
 
     //we will see if can create the team
-    if(await create_team_of_my_app(app)){
+    if (await create_team_of_my_app(app)) {
         req.flash('success', 'Tu aplicacion fue creada con éxito ❤️')
-    }else{
+    } else {
         req.flash('message', 'Hubo un error al crear tu base de datos 👉👈')
     }
 
@@ -4097,12 +4523,12 @@ router.post('/fud/:id_company/:id_branch/create-app', isLoggedIn, async (req, re
 })
 
 router.post('/fud/:id_company/:id_branch/app/create-database', isLoggedIn, async (req, res) => {
-    const { id_company, id_branch} = req.params;
-    const answer=req.body;
+    const { id_company, id_branch } = req.params;
+    const answer = req.body;
 
-    if(await create_the_database_of_my_app(answer,id_company,id_branch)){
+    if (await create_the_database_of_my_app(answer, id_company, id_branch)) {
         req.flash('success', 'Tu aplicacion fue creada con éxito ❤️')
-    }else{
+    } else {
         req.flash('message', 'Hubo un error al crear tu base de datos 👉👈')
     }
 
@@ -4110,9 +4536,9 @@ router.post('/fud/:id_company/:id_branch/app/create-database', isLoggedIn, async
 })
 
 
-async function create_team_of_my_app(app){
+async function create_team_of_my_app(app) {
     //get the schema of the user for create the database
-    const schema=`_company_${app.id_company}_branch_${app.id_branch}`;
+    const schema = `_company_${app.id_company}_branch_${app.id_branch}`;
     const tableNameForm = app.name;
     const tableName = tableNameForm.replace(/\s+/g, '_'); // Replace whitespace with underscores
 
@@ -4127,9 +4553,9 @@ async function create_team_of_my_app(app){
 }
 
 
-async function create_the_database_of_my_app(answer,id_company,id_branch){
+async function create_the_database_of_my_app(answer, id_company, id_branch) {
     //get the schema of the user for create the database
-    const schema=`_company_${id_company}_branch_${id_branch}`;
+    const schema = `_company_${id_company}_branch_${id_branch}`;
     const tableNameForm = answer.name_app;
     const tableName = tableNameForm.replace(/\s+/g, '_'); // Replace whitespace with underscores
 
@@ -4138,13 +4564,13 @@ async function create_the_database_of_my_app(answer,id_company,id_branch){
     var queryText = `
     CREATE TABLE IF NOT EXISTS ${schema}.${tableName} (
         id SERIAL PRIMARY KEY`
-        for(let i=1;i<rows.length;i+=3){
-            const name = rows[i];
-            const valueVariable = rows[i+1];
-            const requeride = rows[i+2];
-            queryText+=`\n,${name} ${answer[valueVariable]} ${answer[requeride]}`;
-        }
-    queryText+=`\n);`;
+    for (let i = 1; i < rows.length; i += 3) {
+        const name = rows[i];
+        const valueVariable = rows[i + 1];
+        const requeride = rows[i + 2];
+        queryText += `\n,${name} ${answer[valueVariable]} ${answer[requeride]}`;
+    }
+    queryText += `\n);`;
 
     try {
         //this is for create the table
